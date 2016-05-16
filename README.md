@@ -5,6 +5,8 @@ Graph500 is one of the applications for ISC16's student cluster competition. The
 The first kernel constructs an undirected graph in a format usable by all subsequent kernels. No subsequent modifications are permitted to benefit specific kernels. The second kernel performs a breadth-first search of the graph. Please note that teams are required to write their own implementation of Graph500 to run on a cluster; the details and reference implementation can be found at the web site: [www.graph500.org](http://graph500.org)
 
 ### Rules for Graph500
+The complete set of rules for ISC16's student cluster competition applications are outlined [here](http://www.hpcadvisorycouncil.com/events/2016/isc16-student-cluster-competition/benchmarking.php).
+
 - Each team will need to implement with their own algorithm. It is not allowed to use the reference implementation for the runs; the implementation can be a simple or elaborate algorithm but each team will need to come up with its own original algorithm.
 - The implementation must run across multiple nodes; the result of the runs that run on a single node only is not allowed.
 - The edge factor should not be modified. The default value of edge factor should be 16.
