@@ -15,8 +15,8 @@
 #include <math.h>
 #include <cuda.h>
 
-#define VERTICES 1000000
-#define EDGES 20
+#define VERTICES 20000
+#define EDGES 10000
 #define MAX_THREADS_PER_BLOCK 256
 
 #define GIG 1000000000
@@ -61,10 +61,8 @@ int main() {
 		exit(1);
 	}
 
-	/*
 	int i = 0;
 	int j = 0;
-	*/
 	int len;
 
 	populate_random(graph_nodes, graph_edge, graph_mask, updating_graph_mask, graph_visited, h_graph_visited);
