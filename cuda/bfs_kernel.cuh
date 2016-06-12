@@ -19,7 +19,7 @@
  * Modified by Boston Green Team.
  */
 
- __global__ void Kernel(Node* g_graph, int *g_edge, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited) {
+__global__ void Kernel(Node* g_graph, int *g_edge, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited) {
 	int tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
 	if (tid < VERTICES && g_graph_mask[tid]) {
 		g_graph_mask[tid] = false;
