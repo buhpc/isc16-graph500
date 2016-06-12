@@ -16,8 +16,8 @@
 #include <cuda.h>
 #include <mpi.h>
 
-#define VERTICES 1000000
-#define EDGES 20
+#define VERTICES 20000
+#define EDGES 10000
 #define MAX_THREADS_PER_BLOCK 256
 
 #define GIG 1000000000
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	cudaEvent_t start, stop, start1, stop1;
 	float elapsed_gpu, elapsed_gpu1;
 
-	MPI_Init(&argc, &argv);	
+	MPI_Init(&argc, &argv);
 
 	printf("Number of vertices: %d\n", VERTICES);
 	printf("Max number of edges: %d\n", EDGES);
@@ -60,15 +60,51 @@ int main(int argc, char *argv[]) {
 	}
 	bool *h_graph_visited;
 	if ((h_graph_visited = (bool*) malloc(sizeof(bool) * VERTICES)) == NULL) {
-		printf("Could not allocate memory for graph_mask.\n");
+		printf("Could not allocate memory for h_graph_visited.\n");
 		exit(1);
 	}
 
+	/**
+	 * Populate random graph done in populate_random function.
+	 */
 	int i = 0;
 	int j = 0;
 	int len;
 
-	populate_random(graph_nodes, graph_edge, graph_mask, updating_graph_mask, graph_visited, h_graph_visited);
+	for (i = 0; i < VERTICES; i++) {
+		// GPU transfer.
+		graph_nodes[i].no_of_edges = (rand() % (EDGES)) + 1;
+
+		if (i == 0) {
+			graph_nodes[i].start= i;
+			len = graph_nodes[i].no_of_edges;
+			graph_edge = (int *) malloc(sizeof(int) * len);
+			if ((graph_edge = (int *) malloc(sizeof(int) * len)) == NULL) {
+				printf("Could not allocate memory for graph_edge: %d\n", i);
+				exit(1);
+			} 
+		} else {
+			graph_nodes[i].start = graph_nodes[i-1].start + graph_nodes[i-1].no_of_edges;
+			len += graph_nodes[i].no_of_edges;
+			graph_edge = (int *) realloc(graph_edge, sizeof(int)*len);
+			if ((graph_edge = (int *) realloc(graph_edge, sizeof(int)*len)) == NULL) {
+				printf("Could not reallocate memory for graph_edge: %d\n", i);
+				exit(1);
+			}
+		}
+		
+		// printf("%d:\t", i);
+		graph_mask[i] = false;
+		updating_graph_mask[i] = false;
+		graph_visited[i] = false;
+		h_graph_visited[i] = false;
+		for (j = graph_nodes[i].start; j < (graph_nodes[i].no_of_edges + graph_nodes[i].start); j++) {
+			graph_edge[j] = rand() % VERTICES;
+			// printf("%d, ", graph_edge[j]);
+		}
+	}
+
+	// populate_random(graph_nodes, graph_edge, graph_mask, updating_graph_mask, graph_visited, h_graph_visited);
 
 	// Create the CUDA events.
 	cudaEventCreate(&start1);
@@ -77,7 +113,7 @@ int main(int argc, char *argv[]) {
 	cudaEventRecord(start1, 0);
 
 	int vertex;
-	for (vertex=0; vertex < VERTICES; vertex++) {
+	for (vertex = 0; vertex < VERTICES; vertex++) {
 		if (!h_graph_visited[vertex]) {   		
 			bfs(graph_nodes,graph_edge,vertex,h_graph_visited);	
 		}
@@ -91,7 +127,7 @@ int main(int argc, char *argv[]) {
 	cudaEventDestroy(start1);
 	cudaEventDestroy(stop1);
 	
-	int source=0;
+	int source = 0;
 
 	// Set the source node as true in the mask.
 	graph_mask[source] = true;
@@ -125,7 +161,7 @@ int main(int argc, char *argv[]) {
 	bool *d_over;
 	CUDA_SAFE_CALL(cudaMalloc( (void**) &d_over, sizeof(bool)));
 
-	printf("Copied everything to GPU memory.\n");
+	printf("Finished copies to GPU memory.\n");
 	
 	int num_of_blocks = 1;
 	int num_of_threads_per_block = VERTICES;
@@ -142,7 +178,7 @@ int main(int argc, char *argv[]) {
 	dim3 threads(num_of_threads_per_block, 1, 1);
 
 	int k = 0;
-	printf("Start traversing the tree.\n");
+	printf("Traversing the tree.\n");
 	bool over;
 	
 	// Call the kernel until all the elements of the frontier are not false.
@@ -179,7 +215,7 @@ int main(int argc, char *argv[]) {
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 
-	printf("Kernel executed: %d times\n", k); 
+	printf("Number of times kernel executed: %d\n", k); 
 		
 	// Cleanup memory.
 	free( graph_nodes);
@@ -199,6 +235,7 @@ int main(int argc, char *argv[]) {
  */
 void populate_random(Node* graph_nodes, int* graph_edge, bool *graph_mask, bool *updating_graph_mask, bool *graph_visited, bool *h_graph_visited) {
 	int i = 0;
+	int j = 0;
 	int len;
 
 	for (i = 0; i < VERTICES; i++) {

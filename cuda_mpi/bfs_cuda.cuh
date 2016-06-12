@@ -26,4 +26,9 @@ inline void gpuAssert(cudaError_t code, char *file, int line, bool abort=true) {
  */
 void bfs(Node* graph_nodes, int* graph_edge, int vertex, bool* visited);
 
+/**
+ * Populates random graph.
+ */
+void populate_random(Node* graph_nodes, int* graph_edge, bool *graph_mask, bool *updating_graph_mask, bool *graph_visited, bool *h_graph_visited);
+
 #endif
