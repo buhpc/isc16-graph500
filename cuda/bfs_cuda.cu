@@ -24,8 +24,8 @@
 #define CPG 2.60
 
 #include "bfs_cuda.cuh"
-//#include "bfs_kernel.cuh"
-//#include "bfs_kernel2.cu"
+#include "bfs_kernel.cuh"
+#include "bfs_kernel2.cuh"
 
 using namespace std;
 
