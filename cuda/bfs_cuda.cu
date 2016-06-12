@@ -64,8 +64,8 @@ int main() {
 	/*
 	int i = 0;
 	int j = 0;
-	int len;
 	*/
+	int len;
 
 	populate_random(graph_nodes, graph_edge, graph_mask, updating_graph_mask, graph_visited, h_graph_visited);
 
