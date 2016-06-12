@@ -175,7 +175,7 @@ int main() {
 	dim3 threads(num_of_threads_per_block, 1, 1);
 
 	int k = 0;
-	printf("Traversing the tree started.\n");
+	printf("Traversing the tree.\n");
 	bool over;
 	
 	// Call the kernel until all the elements of the frontier are not false.
@@ -212,7 +212,7 @@ int main() {
 	cudaEventDestroy(start);
 	cudaEventDestroy(stop);
 
-	printf("Number of times kernel executed: %d times\n", k); 
+	printf("Number of times kernel executed: %d\n", k); 
 		
 	// Cleanup memory.
 	free( graph_nodes);

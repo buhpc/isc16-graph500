@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <math.h>
 #include <cuda.h>
+#include <mpi.h>
 
 #define VERTICES 1000000
 #define EDGES 20
@@ -29,10 +30,12 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
 	// GPU timing variables
 	cudaEvent_t start, stop, start1, stop1;
-	float elapsed_gpu, elapsed_gpu1;	
+	float elapsed_gpu, elapsed_gpu1;
+
+	MPI_Init(&argc, &argv);	
 
 	printf("Number of vertices: %d\n", VERTICES);
 	printf("Max number of edges: %d\n", EDGES);
