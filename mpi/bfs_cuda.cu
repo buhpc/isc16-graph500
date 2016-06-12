@@ -61,11 +61,9 @@ int main() {
 		exit(1);
 	}
 
-	/*
 	int i = 0;
 	int j = 0;
 	int len;
-	*/
 
 	populate_random(graph_nodes, graph_edge, graph_mask, updating_graph_mask, graph_visited, h_graph_visited);
 
@@ -76,7 +74,7 @@ int main() {
 	cudaEventRecord(start1, 0);
 
 	int vertex;
-	for (vertex = 0; vertex < VERTICES; vertex++) {
+	for (vertex=0; vertex < VERTICES; vertex++) {
 		if (!h_graph_visited[vertex]) {   		
 			bfs(graph_nodes,graph_edge,vertex,h_graph_visited);	
 		}
@@ -90,7 +88,7 @@ int main() {
 	cudaEventDestroy(start1);
 	cudaEventDestroy(stop1);
 	
-	int source = 0;
+	int source=0;
 
 	// Set the source node as true in the mask.
 	graph_mask[source] = true;
@@ -198,7 +196,6 @@ int main() {
  */
 void populate_random(Node* graph_nodes, int* graph_edge, bool *graph_mask, bool *updating_graph_mask, bool *graph_visited, bool *h_graph_visited) {
 	int i = 0;
-	int j = 0;
 	int len;
 
 	for (i = 0; i < VERTICES; i++) {
