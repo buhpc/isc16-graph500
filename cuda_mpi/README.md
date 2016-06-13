@@ -9,7 +9,7 @@ ssh scc-hb1
 ```
 
 ```
-module load cuda
+module load openmpi cuda
 ```
 
 ```

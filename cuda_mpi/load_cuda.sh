@@ -1,1 +1,1 @@
-module load cuda
+module load openmpi cuda
