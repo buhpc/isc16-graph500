@@ -20,7 +20,7 @@
  */
 
 __global__ void Kernel(Node* g_graph, int *g_edge, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited) {
-	int tid = blockIdx.x*MAX_THREADS_PER_BLOCK + threadIdx.x;
+	int tid = blockIdx.x * MAX_THREADS_PER_BLOCK + threadIdx.x;
 	if (tid < VERTICES && g_graph_mask[tid]) {
 		g_graph_mask[tid] = false;
 		// cuPrintf("Visiting: %d, %d\n", tid, g_graph[tid].start);

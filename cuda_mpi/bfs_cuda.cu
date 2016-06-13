@@ -31,11 +31,21 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	// GPU timing variables
+	int rank, size;
+
+	// Initialize the MPI library.
+	MPI_Init(&argc, &argv);
+
+	// Determine the calling process rank and total number of ranks.
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	if (MPI_SUCCESS != MPI_Get_processor_name(procname, &length)) {
+        strcpy(procname, "unknown");
+    }
+
+	// GPU timing variables.
 	cudaEvent_t start, stop, start1, stop1;
 	float elapsed_gpu, elapsed_gpu1;
-
-	MPI_Init(&argc, &argv);
 
 	printf("Number of vertices: %d\n", VERTICES);
 	printf("Max number of edges: %d\n", EDGES);
@@ -133,6 +143,11 @@ int main(int argc, char *argv[]) {
 	graph_mask[source] = true;
 	graph_visited[source] = true;
 
+	// Copy the rank to device memory.
+	int* d_rank;
+	CUDA_SAFE_CALL(cudaMalloc(&d_rank, sizeof(int)));
+	CUDA_SAFE_CALL(cudaMemcpy(d_rank, &rank, sizeof(int), cudaMemcpyHostToDevice));
+
 	// Copy the graph to device memory.
 	Node *d_graph;
 	CUDA_SAFE_CALL(cudaMalloc((void**) &d_graph, sizeof(Node) *VERTICES));
@@ -169,7 +184,7 @@ int main(int argc, char *argv[]) {
 	// Make execution parameters according to the number of nodes.
 	// Distribute threads across multiple blocks if necessary.
 	if (VERTICES > MAX_THREADS_PER_BLOCK) {
-		num_of_blocks = (int)ceil(VERTICES/(double)MAX_THREADS_PER_BLOCK); 
+		num_of_blocks = (int)ceil(VERTICES / (double)MAX_THREADS_PER_BLOCK); 
 		num_of_threads_per_block = MAX_THREADS_PER_BLOCK; 
 	}
 
@@ -194,7 +209,7 @@ int main(int argc, char *argv[]) {
 		over = false;
 		cudaMemcpy(d_over, &over, sizeof(bool), cudaMemcpyHostToDevice);
 		
-		Kernel <<< grid, threads, 0 >>> (d_graph,d_edge, d_graph_mask, d_updating_graph_mask, d_graph_visited);
+		Kernel <<< grid, threads, 0 >>> (d_graph, d_edge, d_graph_mask, d_updating_graph_mask, d_graph_visited);
 		// Check if kernel execution generated and error.
 		
 		Kernel2 <<< grid, threads, 0 >>> (d_graph_mask, d_updating_graph_mask, d_graph_visited, d_over);
@@ -218,16 +233,21 @@ int main(int argc, char *argv[]) {
 	printf("Number of times kernel executed: %d\n", k); 
 		
 	// Cleanup memory.
-	free( graph_nodes);
-	free( graph_edge);
-	free( graph_mask);
-	free( updating_graph_mask);
-	free( graph_visited);
+	free(graph_nodes);
+	free(graph_edge);
+	free(graph_mask);
+	free(updating_graph_mask);
+	free(graph_visited);
+	cudafree(d_rank);
 	cudaFree(d_graph);
 	cudaFree(d_edge);
 	cudaFree(d_graph_mask);
 	cudaFree(d_updating_graph_mask);
 	cudaFree(d_graph_visited);
+
+	// Shutdown MPI library
+	MPI_Finalize();
+	return 0;
 }
 
 /**
