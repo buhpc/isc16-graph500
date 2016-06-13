@@ -31,4 +31,9 @@ void bfs(Node* graph_nodes, int* graph_edge, int vertex, bool* visited);
  */
 void populate_random(Node* graph_nodes, int* graph_edge, bool *graph_mask, bool *updating_graph_mask, bool *graph_visited, bool *h_graph_visited);
 
+/**
+ * Checks for CUDA aware OpenMPI.
+ */
+void cuda_openmpi_check();
+
 #endif
