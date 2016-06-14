@@ -96,7 +96,9 @@ int main() {
 		graph_visited[i] = false;
 		h_graph_visited[i] = false;
 		for (j = graph_nodes[i].start; j < (graph_nodes[i].no_of_edges + graph_nodes[i].start); j++) {
-			graph_edge[j] = rand() % VERTICES;
+			do {
+				graph_edge[j] = rand() % VERTICES;
+			} while(graph_edge[j] == j);
 			// printf("%d, ", graph_edge[j]);
 		}
 	}
