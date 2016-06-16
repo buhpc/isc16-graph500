@@ -1,1 +1,0 @@
-module load openmpi cuda
