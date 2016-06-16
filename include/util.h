@@ -1,10 +1,8 @@
-/* filename: util.h
+/**
+ * filename: util.h
  * contents: this file contains the definition of the error class that is used
  * when throwing exception, as well as basic wrappers for cuda error checking, 
  * error logging, and checking for cuda support in MPI
- *
- * author: Trevor Gale
- * date: 6.16.16
 **/
 
 #ifndef UTIL_H

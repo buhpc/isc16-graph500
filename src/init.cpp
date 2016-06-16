@@ -2,9 +2,6 @@
  * filename: init.cpp
  * contents: this file contains the routines to initialize all slave processes
  * with the correct CUDA device ID 
- *
- * author: Trevor Gale
- * data: 6.15.16
  */
 
 #include "init.h"

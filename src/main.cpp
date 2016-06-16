@@ -1,9 +1,6 @@
 /** 
  * filename: main.cc
  * contents: this file contains the main routine for graph500
- *
- * author: Trevor Gale
- * date: 6.15.16
 */
 
 #include "util.h"
