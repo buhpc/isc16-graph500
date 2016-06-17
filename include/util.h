@@ -58,7 +58,4 @@ inline void CheckForCudaAwareMPI() {
 #endif
 }
 
-// only executes on master
-#define MASTER(func, rank) {if (rank == 0) {func;}}
-
 #endif // UTIL_H

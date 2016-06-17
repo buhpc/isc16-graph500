@@ -1,5 +1,5 @@
 /** 
- * filename: main.cc
+ * filename: main.cpp
  * contents: this file contains the main routine for graph500
 */
 
@@ -24,8 +24,10 @@ int main(int argc, char **argv) {
     init(argv[1], rank, np);
 
     // check for cuda aware MPI
-    MASTER(CheckForCudaAwareMPI(), rank)
+    if (rank == 0) { CheckForCudaAwareMPI(); }
+    
 
+      
   }
   catch(MPI::Exception e) {
     std::cout << "MPI ERROR(" << e.Get_error_code()   \
