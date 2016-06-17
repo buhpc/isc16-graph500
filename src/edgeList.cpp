@@ -23,3 +23,21 @@ void EdgeList::create(int numNodes, int seed) {
     edges_[i] = rand() & numNodes;
   }
 }
+
+/**
+ * generates a random edge to return
+ */
+int EdgeList::generateEdge(int seed) {
+  int startL = 0;
+  int startR = seed - 1;
+
+  int endL = 0;
+  int endR = seed - 1;
+
+  while (startR - startL != 1 && endR - endL != 1) {
+
+  }
+
+  // Filler number for now.
+  return 0;
+}
