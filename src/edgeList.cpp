@@ -9,15 +9,17 @@
 /**
  * generate a list of edges of length == numEdges
  */
-EdgeList::EdgeList(int numEdges) : size_(numEdges) {
+void EdgeList::create( int seed) {
   // seed prng
-  srand(time(NULL));
-
-  // allocate enought space for edge list
-  edges_ = new int64[numEdges * 2]();
-
+  if (!seed) { 
+    srand(time(NULL)); 
+  }
+  else { 
+    srand(seed);
+  }
+  
   // set vertices for each edge randomly
-  for (int i = 0; i < numEdges*2; ++i) {
+  for (int i = 0; i < size_; ++i) {
     edges_[i] = rand();
   }
 }

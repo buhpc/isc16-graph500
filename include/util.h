@@ -14,7 +14,6 @@
 #include <mpi.h>
 #include <cstdint>
 
-using int64 = std::uint64_t;
 using namespace std;
 
 /** 

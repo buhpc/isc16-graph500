@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     if (argc != 4) { LOG_ERROR(usage); }
 
-    // call init(): parse config, broadcast device IDs sets each slave sets device
+    // parse config, sets each slave device
     init(argv[1], rank, np);
 
     // get scale and edge factor
@@ -39,12 +39,20 @@ int main(int argc, char **argv) {
 
     // check for cuda aware MPI
     if (rank == 0) { CheckForCudaAwareMPI(false); }
-    
-    // generate random edge list on master
+
+    // allocate buffer 
     EdgeList edges(numEdges);
 
+    // randomly generate on host
+    if(rank == 0) { edges.create(); }
+
     // Broadcast data to all nodes
-      
+    MPI::COMM_WORLD.Bcast(edges.edges(), edges.size(), MPI::LONG_LONG, 0);
+
+    // allocate adj matrix & edgelist/adj list on device
+
+    // launch kernel1
+
   }
   catch(MPI::Exception e) {
     std::cout << "MPI ERROR(" << e.Get_error_code()   \

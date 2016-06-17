@@ -25,9 +25,14 @@ class EdgeList {
   EdgeList() : size_(0), edges_(nullptr) {}
 
   /**
-   * generate random edge list of length = numEdges
+   * allocate memory for list of size numEdges
    */
-  EdgeList(int numEdges);
+ EdgeList(int numEdges) : size_(numEdges) { edges_ = new long long[numEdges*2](); }
+
+  /**
+   * generate random edge list in allocated buffer
+   */
+  void create(int seed = 0);
 
   /**
    * clear edge list
@@ -39,7 +44,7 @@ class EdgeList {
    */
   int size() const { return this->size_; }
 
-  int64* edges() const { return this->edges_; }
+  long long* edges() const { return this->edges_; }
 
   /**
    * copy constructor and copy assigment operators
@@ -54,7 +59,7 @@ class EdgeList {
   
  private:
   
-  int64 *edges_;
+  long long *edges_;
   
   int size_;
 };
