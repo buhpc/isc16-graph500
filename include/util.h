@@ -12,12 +12,14 @@
 #include <string>
 #include <cuda_runtime_api.h>
 #include <mpi.h>
+#include <cstdint>
 
-using string = std::string;
+using int64 = std::uint64_t;
+using namespace std;
 
-/* class Error
+/** 
  * stores error string to indicate what caused error
-**/
+ */
 class Error
 {
 public:
@@ -34,11 +36,16 @@ private:
 };
 
 // generic exception wrapper
-#define LOG_ERROR(msg) {int rank = MPI::COMM_WORLD.Get_rank();    \
-    Error err(string(__FILE__) + "(" + std::to_string(__LINE__) + \
-              "): " + "rank(" + std::to_string(rank) + ") "+ msg);      \
+#define LOG_ERROR(msg) {int rank = MPI::COMM_WORLD.Get_rank();     \
+    Error err(string(__FILE__) + "(" + to_string(__LINE__) +  \
+              "): " + "rank(" + to_string(rank) + ") "+ msg); \
     throw err;}
 
+// printing helper
+#define LOG_INFO(msg) {std::cout << __FILE__ << "(" << to_string(__LINE__) \
+                                 << "): " << msg << endl;}
+
+// wrapper for cuda calls
 #define CUDA_CALL(func) {GpuAssert(func);}
 
 // check for cudaSuccess
@@ -49,12 +56,22 @@ inline void GpuAssert(cudaError_t code) {
 }
 
 // check for cuda aware mpi. throws error if no support
-inline void CheckForCudaAwareMPI() {
+inline void CheckForCudaAwareMPI(bool abort) {
 #ifdef MPIX_CUDA_AWARE_SUPPORT
-  if ( 1 != MPIX_QUERY_cuda_support())
-    LOG_ERROR("No CUDA support in this MPI installation");
+  if ( 1 != MPIX_Query_cuda_support())
+    if (abort) {
+      LOG_ERROR("No CUDA support in this MPI installation");
+    }
+    else {
+      LOG_INFO("No CUDA support in this MPI installation");
+    }
 #else
-  LOG_ERROR("No CUDA support in this MPI installation");
+  if (abort) {
+    LOG_ERROR("No CUDA support in this MPI installation");
+  }
+  else {
+    LOG_INFO("No CUDA support in this MPI installation");
+  }
 #endif
 }
 

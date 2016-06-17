@@ -15,7 +15,9 @@
 
 using namespace std;
 
-// parse command line and setup  
+/**
+ * parse config file and set cuda device
+ */
 void init(const std::string &configFile, int rank, int np);
 
 #endif // INIT_H

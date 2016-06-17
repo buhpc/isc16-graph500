@@ -7,7 +7,9 @@
 #include "init.h"
 #include "util.h"
 
-// parse command line and setup  
+/**
+ * parse config file and set cuda device
+ */
 void init(const string &configFile, int rank, int np) {
   ifstream fp;
   fp.open(configFile);
