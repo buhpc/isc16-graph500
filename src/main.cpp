@@ -6,6 +6,7 @@
 #include "util.h"
 #include "init.h"
 #include "edgeList.h"
+#include "constructGraph.h"
 
 #include <iostream>
 #include <mpi.h>
@@ -44,14 +45,13 @@ int main(int argc, char **argv) {
     EdgeList edges(numEdges);
 
     // randomly generate on host
-    if(rank == 0) { edges.create(); }
+    if(rank == 0) { edges.create(numNodes); }
 
     // Broadcast data to all nodes
     MPI::COMM_WORLD.Bcast(edges.edges(), edges.size(), MPI::LONG_LONG, 0);
 
-    // allocate adj matrix & edgelist/adj list on device
-
-    // launch kernel1
+    // kernel 1
+    ConstructGraph(edges, rank, np);
 
   }
   catch(MPI::Exception e) {

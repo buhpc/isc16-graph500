@@ -32,7 +32,7 @@ class EdgeList {
   /**
    * generate random edge list in allocated buffer
    */
-  void create(int seed = 0);
+  void create(int numNodes, int seed = 0);
 
   /**
    * clear edge list

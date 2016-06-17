@@ -9,7 +9,7 @@
 /**
  * generate a list of edges of length == numEdges
  */
-void EdgeList::create( int seed) {
+void EdgeList::create(int numNodes, int seed) {
   // seed prng
   if (!seed) { 
     srand(time(NULL)); 
@@ -20,6 +20,6 @@ void EdgeList::create( int seed) {
   
   // set vertices for each edge randomly
   for (int i = 0; i < size_; ++i) {
-    edges_[i] = rand();
+    edges_[i] = rand() & numNodes;
   }
 }
