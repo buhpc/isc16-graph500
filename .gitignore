@@ -1,4 +1,4 @@
-bfs_cuda
 main
 *~
+*.o
 

@@ -7,25 +7,25 @@ EXE=main
 NVCC=nvcc
 Q=@
 
-CPP=$(wildcard src/*.cpp)
-CU=$(wildcard src/*.cu)
-OBJ=$(addprefix obj/,$(notdir $(CPP:.cpp=.o)))
-CUOBJ=$(addprefix cuobj/,$(notdir $(CU:.cu=.o)))
+SOURCES=$(shell find src -name "*.cpp") $(shell find src -name "*.cu")
+OBJECTS=$(SOURCES:.cpp=.o)
+OBJECTS:=$(OBJECTS:.cu=.o)
+
 .PHONY: all clean
 
 all: $(EXE)
 
-cuobj/%.o: src/%.cu
-	$(Q)$(NVCC) $(INCLUDE) -c $^ -o $@
+%.o: %.cu
 	$(Q)echo NVCC $<
+	$(Q)$(NVCC) $(INCLUDE) -c $^ -o $@
 
-obj/%.o: src/%.cpp
-	$(Q)$(CC) $(FLAGS) $(INCLUDE) -c $^ -o $@
+.cpp.o:
 	$(Q)echo CXX $<
+	$(Q)$(CC) $(FLAGS) $(INCLUDE) -c $^ -o $@
 
-$(EXE): $(OBJ) $(CUOBJ)
-	$(Q)$(CC) $(FLAGS) -o $@ $^ $(LDFLAGS) $(LIB)
+$(EXE): $(OBJECTS)
 	$(Q)echo CXX $@
+	$(Q)$(CC) $(FLAGS) -o $@ $^ $(LDFLAGS) $(LIB)
 
 clean: 
-	$(Q)rm -f obj/* cuobj/* $(EXE)
+	$(Q)rm -f $(OBJECTS) $(EXE)
