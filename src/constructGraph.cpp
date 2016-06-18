@@ -9,13 +9,14 @@
 /**
  * constructs the graph on GPU from the CPU edge list
  */
-pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
+void constructGraph(EdgeList &edges, Graph &graph, int rank, int np) {
   
   // edges data
   long long *edgeList = edges.edges();
   int numEdges = edges.size();
 
   // find number from vertices from edge list
+  // note: this info is in graph object but this kernel isn't provided that info
   int numNodes = 0;
   for (int i = 0; i < numEdges*2; ++i) {
     if (edgeList[i] > numNodes) {
@@ -36,26 +37,27 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
    *      - numEdges
    *      - device ptr
    *      - visited array
+   * 6. are atomic operations neccessary? we are always setting to same thing
    */
 
   // calculate the number of nodes for this procs graph & offset
   // within global graph
-  int graphSize = numNodes / np;
+  int localNumNodes = numNodes / np;
   int leftover = numNodes % np;
-  int offset;
+  int nodeOffset;
 
   if (rank < leftover) { 
-    graphSize += 1; 
-    offset = rank * graphSize;
+    localNumNodes += 1; 
+    nodeOffset = rank * localNumNodes;
   }
   else {
-    offset = rank * graphSize + leftover;
+    nodeOffset = rank * localNumNodes + leftover;
   }
   
-  // allocate adjacency matrix on device & set to 0'se
-  // note: has to be int to use atomic ops
+  // allocate adjacency matrix on device & set to 0's
+  // note: has to be int to use atomic ops in cuda
   int *adjMatrix;
-  size_t memSize = sizeof(int) * graphSize * numNodes;
+  size_t memSize = sizeof(int) * localNumNodes * numNodes;
   CUDA_CALL(cudaMalloc((void**)&adjMatrix, memSize));
   CUDA_CALL(cudaMemset(adjMatrix, 0, memSize));
 
@@ -67,8 +69,8 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
 
   // print graph chunk info
   std::cout << endl << "rank = " << rank << std::endl;
-  std::cout << "offset = " << offset << std::endl;
-  std::cout << "graphSize = " << graphSize << std::endl;
+  std::cout << "nodeOffset = " << nodeOffset << std::endl;
+  std::cout << "localNumNodes = " << localNumNodes << std::endl;
   std::cout << "numNodes = " << numNodes << std::endl;
   std::cout << "numEdges = " << numEdges << std::endl;
   
@@ -82,21 +84,21 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   }
 
   // launch kernel
-  buildGraph(threadsPerBlock, 
+  /*buildGraph(threadsPerBlock, 
              numBlocks, 
              adjMatrix, 
              numNodes, 
              devEdgeList,
              numEdges,
-             offset,
-             graphSize,
-             rank);
+             nodeOffset,
+             localNumNodes,
+             rank);*/
   
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));
 
   // DEBUG: copy graph back
-  memSize = sizeof(int) * graphSize * numNodes;
+  memSize = sizeof(int) * localNumNodes * numNodes;
   int *hostAdjMatrix = new int[memSize];
   CUDA_CALL(cudaMemcpy(hostAdjMatrix, adjMatrix, memSize, cudaMemcpyDeviceToHost));
 
@@ -117,8 +119,4 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
     
     if (!((i+1) % numNodes)) { std::cout << std::endl; }
   }
-  
-  
-  // return graphSize & offset for future use
-  return pair<int, int>(graphSize, offset);
 }

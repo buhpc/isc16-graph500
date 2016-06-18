@@ -50,11 +50,8 @@ class EdgeList {
    * copy constructor and copy assigment operators
    */
   EdgeList& operator=(EdgeList &&edgeList) = delete;
-
   EdgeList& operator=(const EdgeList &edgeLIst) = delete;
-
   EdgeList(EdgeList &&edgeList) = delete;
-
   EdgeList(const EdgeList &edgeList) = delete;
   
  private:

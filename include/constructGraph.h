@@ -13,16 +13,13 @@
 
 #include "edgeList.h"
 #include "buildAdjMatrix.h"
+#include "graph.h"
 
 using namespace std;
 
 /**
  * constructs the graph on GPU from the CPU edge list
- * 
- * return:
- *   - pair where pair.first = num nodes in this ranks graph
- * and pair.second = offset within the global graph
  */
-pair<int,int> constructGraph(EdgeList &edges, int rank, int np);
+void constructGraph(EdgeList &edges, Graph &graph, int rank, int np);
 
 #endif // CONSTRUCT_GRAPH_H

@@ -7,6 +7,7 @@
 #include "init.h"
 #include "edgeList.h"
 #include "constructGraph.h"
+#include "graph.h"
 
 #include <iostream>
 #include <mpi.h>
@@ -50,10 +51,12 @@ int main(int argc, char **argv) {
 
     // Broadcast data to all nodes
     MPI::COMM_WORLD.Bcast(edges.edges(), edges.size()*2, MPI::LONG_LONG, 0);
+    
+    // construct a graph object for this proc
+    Graph graph(numNodes, numEdges, 0, 0, nullptr, nullptr, rank, np);
 
     // kernel 1
-    pair<int,int> graphInfo;
-    graphInfo = constructGraph(edges, rank, np);
+    constructGraph(edges, graph, rank, np);
 
   }
   catch(MPI::Exception e) {
