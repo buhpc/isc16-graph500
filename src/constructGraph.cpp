@@ -65,7 +65,7 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   CUDA_CALL(cudaMalloc((void**)&devEdgeList, memSize));
   CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edgeList, memSize, cudaMemcpyHostToDevice));
 
-  // launch graph contruction
+  // print graph chunk info
   std::cout << endl << "rank = " << rank << std::endl;
   std::cout << "offset = " << offset << std::endl;
   std::cout << "graphSize = " << graphSize << std::endl;
@@ -73,6 +73,18 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   std::cout << "numEdges = " << numEdges << std::endl;
   
   // calculate num blocks & num threads per block based on numEdges
+  int threadsPerBlock = 256;
+  int numBlocks = ceil(numEdges / threadsPerBlock);
+
+  // launch kernel
+  buildGraph(threadsPerBlock, 
+             numBlocks, 
+             adjMatrix, 
+             numNodes, 
+             devEdgeList,
+             numEdges,
+             offset,
+             graphSize);
 
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));

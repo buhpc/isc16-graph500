@@ -8,6 +8,18 @@
 #define BUILD_ADJ_MATRIX_H
 
 /**
+ * wrapper for cuda kernel
+ */
+void buildGraph(int threadsPerBlock, 
+                int numBlocks, 
+                int *adjMatrix,
+                int numNodes,
+                long long *edgeList,
+                int numEdges,
+                int offset, 
+                int graphSize);
+
+/**
  * constructs an adjacency matrix in device memory from the list
  * of edges
  *

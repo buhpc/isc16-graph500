@@ -12,6 +12,7 @@
 #include <cmath>
 
 #include "edgeList.h"
+#include "buildAdjMatrix.h"
 
 using namespace std;
 

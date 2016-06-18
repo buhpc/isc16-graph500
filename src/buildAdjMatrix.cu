@@ -6,6 +6,30 @@
 
 #include "buildAdjMatrix.h"
 
+/**
+ * wrapper for cuda kernel
+ */
+void buildGraph(int threadsPerBlock,
+                int numBlocks,
+                int *adjMatrix,
+                int numNodes,
+                long long *edgeList,
+                int numEdges,
+                int offset,
+                int graphSize) {
+  // launch kernel
+  buildAdjMatrix<<<numBlocks, threadsPerBlock>>>(adjMatrix,
+                                                 numNodes,
+                                                 edgeList,
+                                                 numEdges,
+                                                 offset,
+                                                 graphSize);
+}
+
+/**
+ * constructs and adjacency matrix in device memory from the list
+ * of edges
+ */
 __global__ void buildAdjMatrix(int *adjMatrix,
                                int numNodes,
                                long long *edgeList,
