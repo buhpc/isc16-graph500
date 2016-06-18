@@ -56,14 +56,14 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   // note: has to be int to use atomic ops
   int *adjMatrix;
   size_t memSize = sizeof(int) * graphSize * numNodes;
-  CUDA_SAFE_CALL(cudaMalloc((void**)&adjMatrix, memSize));
-  CUDA_SAFE_CALL(cudaMemset(adjMatrix, 0, memSize));
+  CUDA_CALL(cudaMalloc((void**)&adjMatrix, memSize));
+  CUDA_CALL(cudaMemset(adjMatrix, 0, memSize));
 
   // allocate buffer for edge list
   long long *devEdgeList;
   memSize = sizeof(long long) * numEdges * 2;
-  CUDA_SAFE_CALL(cudaMalloc((void**)&devEdgeList, memSize));
-  CUDA_SAFE_CALL(cudaMemcpy(devEdgeList, (void *)edgeList, memSize, cudaMemcpyHostToDevice));
+  CUDA_CALL(cudaMalloc((void**)&devEdgeList, memSize));
+  CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edgeList, memSize, cudaMemcpyHostToDevice));
 
   // launch graph contruction
   std::cout << endl << "rank = " << rank << std::endl;
@@ -75,7 +75,7 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   // calculate num blocks & num threads per block based on numEdges
 
   // cleanup edge list
-  CUDA_SAFE_CALL(cudaFree(devEdgeList));
+  CUDA_CALL(cudaFree(devEdgeList));
 
   // return graphSize & offset for future use
   return pair<int, int>(graphSize, offset);

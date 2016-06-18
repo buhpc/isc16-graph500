@@ -8,6 +8,9 @@
  
 #include "edgeList.h"
 
+/**
+ * generates a struct edge using a start vertex and end vertex
+ */
 edge generatedEdge(long long from, long long to) {
   edge generatedEdge;
   generatedEdge.from = from;
@@ -16,7 +19,7 @@ edge generatedEdge(long long from, long long to) {
 }
 
 /**
- * generate a list of edges of length == numEdges
+ * generate s list of edges of length == numEdges
  */
 void EdgeList::create(int numNodes, int scale, int seed) {
   // seed prng
@@ -27,9 +30,10 @@ void EdgeList::create(int numNodes, int scale, int seed) {
     srand(seed);
   }
 
-  float a = 0.57;
-  float b = 0.19;
-  float c = 0.19;
+  // set initiator probabilities
+  double a = 0.57;
+  double b = 0.19;
+  double c = 0.19;
 
   // set vertices for each edge randomly
   for (int i = 0; i < size_; ++i) {
@@ -38,31 +42,35 @@ void EdgeList::create(int numNodes, int scale, int seed) {
 }
 
 /**
- * generates a random edge to return
+ * returns a random edge struct based on
+ *    scale and initiator probabilities
  */
-edge EdgeList::generateRandomEdge(int scale, float A, float B, float C) {
+edge EdgeList::generateRandomEdge(int scale, double A, double B, double C) {
   long long from = 0;
   long long to = 0;
 
-  float ab = A + B;
-  float cNorm = C / (1 - ab);
-  float aNorm = A / ab;
+  // loop over each order of bit
+  double ab = A + B;
+  double cNorm = C / (1 - ab);
+  double aNorm = A / ab;
 
   for(int ib = 0; ib < scale; ib++) {
+    // compare with probabilities and set bits of indices
     int coeff = 1 << uint(ib);
 
     long long from2 = 0;
     long long to2 = 0;
 
-    float rand1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    // permute vertex labels
+    double rand1 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
     if (rand1 > ab) {
       from2 = 1;
     }
 
-    float rand2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    double rand2 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-    if (rand2 > (cNorm * float(from2)) + (aNorm * fmodf(float(from2 + 1.0), 2.0))) {
+    if (rand2 > (cNorm * double(from2)) + (aNorm * fmod(from2 + 1.0, 2.0))) {
       to2 = 1;
     }
 

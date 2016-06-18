@@ -1,10 +1,10 @@
 .SUFFIXES:
 .SUFFIXES: .o .cpp
 #============================================================
-TARGET	=  edgeMake
+TARGET	=  edgeListTest
 
-C_SOURCES =  edgeList.cpp edgeMakeTest.cpp 
-C_OBJS     =  edgeList.o edgeMakeTest.o
+C_SOURCES =  edgeList.cpp edgeListTest.cpp 
+C_OBJS     =  edgeList.o edgeListTest.o
 MY_INCLUDES =  util.h edgeList.h
 
 CCX = g++

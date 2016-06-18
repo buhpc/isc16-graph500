@@ -1,3 +1,9 @@
+/**
+ * filename: edgeListTest.cpp
+ * contents: this file contains a simple test
+ *      for Kronecker edge list creation.
+ */
+
 #include "edgeList.h"
 
 #include <iostream>
@@ -12,18 +18,15 @@ int main(int argc, char **argv) {
     int numNodes = pow(2, scale);
     int numEdges = edgeFactor * numNodes;
 
-    int testNodes = 10;
-    int testEdges = 10;
-
     // allocate buffer 
-    EdgeList edges(testEdges);
+    EdgeList edges(numEdges);
 
     // create edges
 	edges.create(numNodes, scale);
 
 	// prints Kronecker generated graph from and to vertices
     edge *edgeList = edges.edges();
-    for (int i = 0; i < testEdges; i++) {
+    for (int i = 0; i < numEdges; i++) {
     	cout << edgeList[i].from << " " << edgeList[i].to << endl;
     }
 

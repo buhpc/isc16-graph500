@@ -15,11 +15,17 @@
 
 using namespace std;
 
+/**
+ * struct to hold start vertex connecting end vertex
+ */
 struct edge {
   long long from;
   long long to;
 };
 
+/**
+ * generates a struct edge using a start vertex and end vertex
+ */
 edge generatedEdge(long long from, long long to);
 
 /**
@@ -40,7 +46,7 @@ class EdgeList {
    * generate random edge list in allocated buffer
    */
   void create(int numNodes, int scale, int seed = 0);
-  edge generateRandomEdge(int scale, float A, float B, float C);
+  edge generateRandomEdge(int scale, double A, double B, double C);
 
   /**
    * clear edge list
