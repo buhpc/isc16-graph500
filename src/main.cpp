@@ -13,6 +13,7 @@
 #include <cmath>
 #include <string>
 #include <cstdlib>
+#include <utility>
 
 static const string usage = "[USAGE] ./main <config.ini> <scale> <edgefactor>";
 
@@ -51,16 +52,17 @@ int main(int argc, char **argv) {
     MPI::COMM_WORLD.Bcast(edges.edges(), edges.size(), MPI::LONG_LONG, 0);
 
     // kernel 1
-    ConstructGraph(edges, rank, np);
+    pair<int,int> graphInfo;
+    graphInfo = ConstructGraph(edges, rank, np);
 
   }
   catch(MPI::Exception e) {
-    std::cout << "MPI ERROR(" << e.Get_error_code()   \
-              << "):" << e.Get_error_string()         \
-              << std::endl;
+    cout << "MPI ERROR(" << e.Get_error_code() \
+         << "):" << e.Get_error_string()       \
+         << endl;
   }
   catch(Error err) {
-    std::cout << err.GetError() << std::endl;
+    cout << err.GetError() << endl;
   }
   MPI::Finalize();
 }  

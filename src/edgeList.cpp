@@ -20,6 +20,6 @@ void EdgeList::create(int numNodes, int seed) {
   
   // set vertices for each edge randomly
   for (int i = 0; i < size_; ++i) {
-    edges_[i] = rand() & numNodes;
+    edges_[i] = rand() % numNodes;
   }
 }
