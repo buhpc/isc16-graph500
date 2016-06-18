@@ -9,7 +9,7 @@
 /**
  * constructs the graph on GPU from the CPU edge list
  */
-pair<int, int> ConstructGraph(EdgeList &edges, int rank, int np) {
+pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   
   // edges data
   long long *edgeList = edges.edges();
@@ -43,6 +43,7 @@ pair<int, int> ConstructGraph(EdgeList &edges, int rank, int np) {
   int graphSize = numNodes / np;
   int leftover = numNodes % np;
   int offset;
+
   if (rank < leftover) { 
     graphSize += 1; 
     offset = rank * graphSize;
@@ -50,21 +51,28 @@ pair<int, int> ConstructGraph(EdgeList &edges, int rank, int np) {
   else {
     offset = rank * graphSize + leftover;
   }
-
-
-  // allocate adjacency matrix on device & set to 0's
-  void *adjMatrix;
-  size_t memSize = sizeof(bool) * graphSize * numNodes;
-  CUDA_CALL(cudaMalloc(&adjMatrix, memSize));
+  
+  // allocate adjacency matrix on device & set to 0'se
+  // note: has to be int to use atomic ops
+  int *adjMatrix;
+  size_t memSize = sizeof(int) * graphSize * numNodes;
+  CUDA_CALL(cudaMalloc((void**)&adjMatrix, memSize));
   CUDA_CALL(cudaMemset(adjMatrix, 0, memSize));
 
   // allocate buffer for edge list
-  void *devEdgeList;
+  long long *devEdgeList;
   memSize = sizeof(long long) * numEdges * 2;
-  CUDA_CALL(cudaMalloc(&devEdgeList, memSize));
+  CUDA_CALL(cudaMalloc((void**)&devEdgeList, memSize));
   CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edgeList, memSize, cudaMemcpyHostToDevice));
 
   // launch graph contruction
+  std::cout << endl << "rank = " << rank << std::endl;
+  std::cout << "offset = " << offset << std::endl;
+  std::cout << "graphSize = " << graphSize << std::endl;
+  std::cout << "numNodes = " << numNodes << std::endl;
+  std::cout << "numEdges = " << numEdges << std::endl;
+  
+  // calculate num blocks & num threads per block based on numEdges
 
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));

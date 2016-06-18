@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 
     // kernel 1
     pair<int,int> graphInfo;
-    graphInfo = ConstructGraph(edges, rank, np);
+    graphInfo = constructGraph(edges, rank, np);
 
   }
   catch(MPI::Exception e) {

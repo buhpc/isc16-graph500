@@ -9,6 +9,7 @@
 
 #include <cuda_runtime_api.h>
 #include <utility>
+#include <cmath>
 
 #include "edgeList.h"
 
@@ -21,6 +22,6 @@ using namespace std;
  *   - pair where pair.first = num nodes in this ranks graph
  * and pair.second = offset within the global graph
  */
-pair<int,int> ConstructGraph(EdgeList &edges, int rank, int np);
+pair<int,int> constructGraph(EdgeList &edges, int rank, int np);
 
 #endif // CONSTRUCT_GRAPH_H
