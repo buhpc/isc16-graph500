@@ -17,7 +17,7 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
 
   // find number from vertices from edge list
   int numNodes = 0;
-  for (int i = 0; i < numEdges; ++i) {
+  for (int i = 0; i < numEdges*2; ++i) {
     if (edgeList[i] > numNodes) {
       numNodes = edgeList[i];
     }
@@ -26,7 +26,7 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
 
   /**TODO
    * 1. chunk adj matrix allocation by rank [x]
-   * 2. launch kernel to convert edge list to adj matrix
+   * 2. launch kernel to convert edge list to adj matrix [x]
    * 3. free edge list from host [x]
    * 4. return offset for use in bfs [x]
    * 5. create graph object to store
@@ -74,7 +74,12 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
   
   // calculate num blocks & num threads per block based on numEdges
   int threadsPerBlock = 256;
-  int numBlocks = ceil(numEdges / threadsPerBlock);
+  int numBlocks = ceil(float(numEdges) / threadsPerBlock);
+
+  if( rank == 1) {
+    std::cout << "blocks = " << numBlocks << std::endl;
+    std::cout << "threads = " << threadsPerBlock << std::endl;
+  }
 
   // launch kernel
   buildGraph(threadsPerBlock, 
@@ -84,11 +89,36 @@ pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
              devEdgeList,
              numEdges,
              offset,
-             graphSize);
-
+             graphSize,
+             rank);
+  
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));
 
+  // DEBUG: copy graph back
+  memSize = sizeof(int) * graphSize * numNodes;
+  int *hostAdjMatrix = new int[memSize];
+  CUDA_CALL(cudaMemcpy(hostAdjMatrix, adjMatrix, memSize, cudaMemcpyDeviceToHost));
+
+  // inspect the graph
+  for (int i = 0; i < numEdges; ++i) {
+    std::cout << edgeList[i] << "\t";
+  }
+  std::cout << std::endl;
+  for (int i = 0; i < numEdges; ++i) {
+    std::cout << edgeList[i + numEdges] << "\t";
+  }
+  
+  std::cout << std::endl;
+  std::cout << "printing graph" << std::endl;
+  int num = memSize / sizeof(int);
+  for (int i = 0; i < num; ++i) {
+    std::cout << hostAdjMatrix[i] << " ";
+    
+    if (!((i+1) % numNodes)) { std::cout << std::endl; }
+  }
+  
+  
   // return graphSize & offset for future use
   return pair<int, int>(graphSize, offset);
 }

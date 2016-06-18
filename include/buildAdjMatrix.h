@@ -17,7 +17,8 @@ void buildGraph(int threadsPerBlock,
                 long long *edgeList,
                 int numEdges,
                 int offset, 
-                int graphSize);
+                int graphSize,
+                int rank);
 
 /**
  * constructs an adjacency matrix in device memory from the list
@@ -36,6 +37,7 @@ __global__ void buildAdjMatrix(int *adjMatrix,
                                long long *edgeList,
                                int numEdges,
                                int offset, 
-                               int graphSize);
+                               int graphSize,
+                               int rank);
 
 #endif // BUID_ADJ_MATRIX_H

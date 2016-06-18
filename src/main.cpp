@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     if(rank == 0) { edges.create(numNodes); }
 
     // Broadcast data to all nodes
-    MPI::COMM_WORLD.Bcast(edges.edges(), edges.size(), MPI::LONG_LONG, 0);
+    MPI::COMM_WORLD.Bcast(edges.edges(), edges.size()*2, MPI::LONG_LONG, 0);
 
     // kernel 1
     pair<int,int> graphInfo;
