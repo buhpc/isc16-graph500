@@ -1,5 +1,7 @@
-CC=mpicc
-FLAGS=-std=c++0x
+# CC=mpicc
+# FLAGS=-std=c++0x
+CC=mpicxx-openmpi-mp
+FLAGS=-std=c++11
 INCLUDE= -Iinclude -I/usr/local/cuda/include
 LDFLAGS=-L/usr/local/cuda/lib
 LIB=-lcudart
