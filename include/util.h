@@ -45,14 +45,16 @@ private:
                                  << "): " << msg << endl;}
 
 // wrapper for cuda calls
-#define CUDA_CALL(func) {GpuAssert(func);}
+// #define CUDA_CALL(func) {GpuAssert(func);}
 
 // check for cudaSuccess
+/*
 inline void GpuAssert(cudaError_t code) {
   if (code != cudaSuccess) {
     LOG_ERROR(cudaGetErrorString(code));
   }
 }
+*/
 
 // check for cuda aware mpi. throws error if no support
 inline void CheckForCudaAwareMPI(bool abort) {

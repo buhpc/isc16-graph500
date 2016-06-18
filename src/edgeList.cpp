@@ -6,6 +6,9 @@
 
 #include "edgeList.h"
 
+#define SCALE 100
+#define EDGEFACTOR 16
+
 /**
  * generate a list of edges of length == numEdges
  */
