@@ -53,10 +53,10 @@ int main(int argc, char **argv) {
     MPI::COMM_WORLD.Bcast(edges.edges(), edges.size()*2, MPI::LONG_LONG, 0);
     
     // construct a graph object for this proc
-    Graph graph(numNodes, numEdges, 0, 0, nullptr, nullptr, rank, np);
+    Graph graph(0, numEdges, rank, np);
 
     // kernel 1
-    constructGraph(edges, graph, rank, np);
+    constructGraph(edges, graph);
 
   }
   catch(MPI::Exception e) {

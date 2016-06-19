@@ -7,6 +7,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <cuda_runtime_api.h>
+
+#include "util.h"
+
 /**
  * stores graph information and data
  */
@@ -15,14 +19,8 @@ class Graph {
  public:
   
   // store all member of the graph
-  Graph(int numGlobalNodes, int numGlobalEdges, int nodeOffset,
-        int numLocalNodes, int *deviceAdjMatrix, int *visitedNodes, 
-        int rank, int np) :
-        numGlobalNodes_(numGlobalNodes), numGlobalEdges_(numGlobalEdges), 
-        nodeOffset_(nodeOffset), numLocalNodes_(numLocalNodes),
-        deviceAdjMatrix_(deviceAdjMatrix), visitedNodes_(visitedNodes),
-        rank_(rank), np_(np){}
-        
+  Graph(int numGlobalNodes, int numGlobalEdges, int rank, int np);
+
   /**
    * getters for all members
    */
@@ -30,21 +28,21 @@ class Graph {
   int numGlobalEdges() const { return numGlobalEdges_; }
   int nodeOffset() const { return nodeOffset_; }
   int numLocalNodes() const { return numLocalNodes_; }
-  int getRank() const { return rank_; }
-  int getNp() const { return np_; }
+  int rank() const { return rank_; }
+  int np() const { return np_; }
   int* deviceAdjMatrix() const { return deviceAdjMatrix_; }
   int* visitedNodes() const { return visitedNodes_; }
   
   /**
-   * setters for offset & numLocalNodes
+   * setters
    */ 
-  void setNodeOffset(int offset) { nodeOffset_ = offset; }
-  void setNumLocalNodes(int numNodes) { numLocalNodes_ = numNodes; }
+  void setNumGlobalNodes(int numNodes) { numGlobalNodes_ = numNodes; }
 
   /**
-   * calculates localNumNodes based on rank, np, and 
+   * calculate numLocalNodes & nodeOffset
    */
-  
+  void chunkGraph();
+
   /**
    * create device adjacency matrix
    */

@@ -20,6 +20,6 @@ using namespace std;
 /**
  * constructs the graph on GPU from the CPU edge list
  */
-void constructGraph(EdgeList &edges, Graph &graph, int rank, int np);
+void constructGraph(EdgeList &edges, Graph &graph);
 
 #endif // CONSTRUCT_GRAPH_H
