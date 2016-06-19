@@ -41,16 +41,17 @@ private:
     throw err;}
 
 // printing helper
-#define LOG_INFO(msg) {std::cout << __FILE__ << "(" << to_string(__LINE__) \
-                                 << "): " << msg << endl;}
+#define LOG_INFO(msg) {cout << __FILE__ << "(" << to_string(__LINE__) \
+                            << "): " << msg << endl;}
 
 // wrapper for cuda calls
-#define CUDA_CALL(func) {GpuAssert(func);}
+#define CUDA_CALL(func) {GpuAssert(func, __FILE__, __LINE__);}
 
 // check for cudaSuccess
-inline void GpuAssert(cudaError_t code) {
+inline void GpuAssert(cudaError_t code, const string file, int line) {
   if (code != cudaSuccess) {
-    LOG_ERROR(cudaGetErrorString(code));
+    std::cout << file << "(" << to_string(line) \
+              << "): " << cudaGetErrorString(code) << endl;;
   }
 }
 

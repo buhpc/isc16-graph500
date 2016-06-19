@@ -12,7 +12,7 @@
  */
 void buildGraph(int threadsPerBlock, 
                 int numBlocks, 
-                int *adjMatrix,
+                bool *adjMatrix,
                 int numNodes,
                 long long *edgeList,
                 int numEdges,
@@ -32,7 +32,7 @@ void buildGraph(int threadsPerBlock,
  *   - offset: the offset of the first first for this rank
  *   - graphSize: the number of vertices this graph has
  */
-__global__ void buildAdjMatrix(int *adjMatrix,
+__global__ void buildAdjMatrix(bool *adjMatrix,
                                int numNodes,
                                long long *edgeList,
                                int numEdges,

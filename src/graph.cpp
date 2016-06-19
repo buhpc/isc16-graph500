@@ -35,7 +35,7 @@ void Graph::chunkGraph() {
  * allocate the graph on device and set to 0
  */
 void Graph::allocateDeviceAdjMatrix() {
-  size_t memSize = sizeof(int) * numLocalNodes_ * numGlobalNodes_;
+  size_t memSize = sizeof(bool) * numLocalNodes_ * numGlobalNodes_;
   CUDA_CALL(cudaMalloc((void**)&deviceAdjMatrix_, memSize));
   CUDA_CALL(cudaMemset(deviceAdjMatrix_, 0, memSize));
 }
