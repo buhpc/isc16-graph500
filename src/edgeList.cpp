@@ -74,7 +74,7 @@ edge EdgeList::generateRandomEdge(int scale, double A, double B, double C) {
       to2 = 1;
     }
 
-    from = from + coeff + from2;
+    from = from + coeff * from2;
     to = to + coeff * to2;
   }
 

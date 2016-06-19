@@ -26,8 +26,9 @@ int main(int argc, char **argv) {
 
 	// prints Kronecker generated graph from and to vertices
     edge *edgeList = edges.edges();
+    cout << "List of Kronecker edges:" << endl;
     for (int i = 0; i < numEdges; i++) {
-    	cout << edgeList[i].from << " " << edgeList[i].to << endl;
+    	cout << edgeList[i].from << " connected to " << edgeList[i].to << endl;
     }
 
 	return 0;
