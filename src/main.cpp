@@ -8,6 +8,7 @@
 #include "edgeList.h"
 #include "constructGraph.h"
 #include "graph.h"
+#include "generateKey.h"
 
 #include <iostream>
 #include <mpi.h>
@@ -58,6 +59,26 @@ int main(int argc, char **argv) {
     // kernel 1
     constructGraph(edges, graph);
 
+    /** TODO
+     * 1. sample keys [x]
+     * 2. BFS
+     * 3. integrate knronecker generator
+     * 4. integrate validation
+     * 5. add timing
+     */
+    
+    // copy graph back for sampling
+    long long key = 0;
+    int numIters = min(64, graph.numGlobalNodes());      
+    for (int iter = 0; iter < numIters; ++iter) {
+      if (rank == 0) {
+        // sample random search key in [0,graph.numGlobalNodes
+        key = generateKey(graph, edges);
+      }
+      // broadcast key to all ranks
+      MPI::COMM_WORLD.Bcast(&key, 1, MPI::LONG_LONG, 0);
+
+    }
   }
   catch(MPI::Exception e) {
     cout << "MPI ERROR(" << e.Get_error_code() \

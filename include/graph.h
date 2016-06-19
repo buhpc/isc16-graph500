@@ -30,8 +30,8 @@ class Graph {
   int numLocalNodes() const { return numLocalNodes_; }
   int rank() const { return rank_; }
   int np() const { return np_; }
-  int* deviceAdjMatrix() const { return deviceAdjMatrix_; }
-  int* visitedNodes() const { return visitedNodes_; }
+  bool* deviceAdjMatrix() const { return deviceAdjMatrix_; }
+  bool* visitedNodes() const { return visitedNodes_; }
   
   /**
    * setters
@@ -76,8 +76,8 @@ class Graph {
    */
   int nodeOffset_; // offset of the first node this rank is responsible for
   int numLocalNodes_; // number of nodes this rank is responsible for
-  int *deviceAdjMatrix_; // ptr to adjacency matrix in device memory
-  int *visitedNodes_; // array of length globalNumNodes (on device)
+  bool *deviceAdjMatrix_; // ptr to adjacency matrix in device memory
+  bool *visitedNodes_; // array of length globalNumNodes (on device)
   
 };
 
