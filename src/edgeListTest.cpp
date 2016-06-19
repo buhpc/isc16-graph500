@@ -4,7 +4,8 @@
  *      for Kronecker edge list creation.
  *
  * The scalable data generator will construct a list of edge tuples
- *      containing vertex identifiers. Each edge is undirected with its endpoints given in the tuple as StartVertex and EndVertex.
+ *      containing vertex identifiers. Each edge is undirected with
+ *      its endpoints given in the tuple as StartVertex and EndVertex.
  */
 
 #include "edgeList.h"

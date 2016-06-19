@@ -1,6 +1,6 @@
 /**
  * filename: edgeList.cpp
- * contents: this file contains the definition of the function used ot 
+ * contents: this file contains the definition of the function used to 
  * generate a random edge list for testing
  */
 
