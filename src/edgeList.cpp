@@ -9,7 +9,7 @@
 #include "edgeList.h"
 
 /**
- * generate s list of edges of length == numEdges
+ * generate a list of edges of length == numEdges
  */
 void EdgeList::create(int numNodes, int scale, int seed) {
   // seed prng
