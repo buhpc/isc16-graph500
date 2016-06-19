@@ -19,14 +19,14 @@ using namespace std;
  * struct to hold start vertex connecting end vertex
  */
 struct edge {
-  long long from;
-  long long to;
+  long long start;
+  long long end;
 };
 
 /**
  * generates a struct edge using a start vertex and end vertex
  */
-edge generatedEdge(long long from, long long to);
+edge generatedEdge(long long start, long long end);
 
 /**
  * class to store list of edges

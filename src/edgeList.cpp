@@ -1,6 +1,6 @@
 /**
  * filename: edgeList.cpp
- * contents: this file contains the definition of the funciton used ot 
+ * contents: this file contains the definition of the function used ot 
  * generate a random edge list for testing
  */
 
@@ -11,10 +11,10 @@
 /**
  * generates a struct edge using a start vertex and end vertex
  */
-edge generatedEdge(long long from, long long to) {
+edge generatedEdge(long long start, long long end) {
   edge generatedEdge;
-  generatedEdge.from = from;
-  generatedEdge.to = to;
+  generatedEdge.start = start;
+  generatedEdge.end = end;
   return generatedEdge;
 }
 
@@ -46,8 +46,8 @@ void EdgeList::create(int numNodes, int scale, int seed) {
  *    scale and initiator probabilities
  */
 edge EdgeList::generateRandomEdge(int scale, double A, double B, double C) {
-  long long from = 0;
-  long long to = 0;
+  long long start = 0;
+  long long end = 0;
 
   // loop over each order of bit
   double ab = A + B;
@@ -58,25 +58,25 @@ edge EdgeList::generateRandomEdge(int scale, double A, double B, double C) {
     // compare with probabilities and set bits of indices
     int coeff = 1 << uint(ib);
 
-    long long from2 = 0;
-    long long to2 = 0;
+    long long start2 = 0;
+    long long end2 = 0;
 
     // permute vertex labels
     double rand1 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
     if (rand1 > ab) {
-      from2 = 1;
+      start2 = 1;
     }
 
     double rand2 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-    if (rand2 > (cNorm * double(from2)) + (aNorm * fmod(from2 + 1.0, 2.0))) {
-      to2 = 1;
+    if (rand2 > (cNorm * double(start2)) + (aNorm * fmod(start2 + 1.0, 2.0))) {
+      end2 = 1;
     }
 
-    from = from + coeff * from2;
-    to = to + coeff * to2;
+    start = start + coeff * start2;
+    end = end + coeff * end2;
   }
 
-  return generatedEdge(from, to);
+  return generatedEdge(start, end);
 }

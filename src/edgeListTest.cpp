@@ -2,6 +2,9 @@
  * filename: edgeListTest.cpp
  * contents: this file contains a simple test
  *      for Kronecker edge list creation.
+ *
+ * The scalable data generator will construct a list of edge tuples
+ *      containing vertex identifiers. Each edge is undirected with its endpoints given in the tuple as StartVertex and EndVertex.
  */
 
 #include "edgeList.h"
@@ -24,11 +27,12 @@ int main(int argc, char **argv) {
     // create edges
 	edges.create(numNodes, scale);
 
-	// prints Kronecker generated graph from and to vertices
+	// prints Kronecker generated graph start and end vertices
     edge *edgeList = edges.edges();
     cout << "List of Kronecker edges:" << endl;
+    cout << "Start End" << endl;
     for (int i = 0; i < numEdges; i++) {
-    	cout << edgeList[i].from << " connected to " << edgeList[i].to << endl;
+    	cout << edgeList[i].start << " " << edgeList[i].end << endl;
     }
 
 	return 0;
