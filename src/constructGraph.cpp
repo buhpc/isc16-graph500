@@ -9,74 +9,80 @@
 /**
  * constructs the graph on GPU from the CPU edge list
  */
-pair<int, int> constructGraph(EdgeList &edges, int rank, int np) {
+void constructGraph(EdgeList &edges, Graph &graph) {
   
-  // edges data
-  long long *edgeList = edges.edges();
-  int numEdges = edges.size();
-
   // find number from vertices from edge list
+  // note: this info is in graph object but this kernel isn't provided that info
   int numNodes = 0;
-  for (int i = 0; i < numEdges; ++i) {
-    if (edgeList[i] > numNodes) {
-      numNodes = edgeList[i];
+  for (int i = 0; i < edges.size()*2; ++i) {
+    if (edges.edges()[i] > numNodes) {
+      numNodes = edges.edges()[i];
     }
   }
   numNodes += 1;
-
-  /**TODO
-   * 1. chunk adj matrix allocation by rank [x]
-   * 2. launch kernel to convert edge list to adj matrix
-   * 3. free edge list from host [x]
-   * 4. return offset for use in bfs [x]
-   * 5. create graph object to store
-   *      - offset
-   *      - chunkSize
-   *      - numNodes
-   *      - numEdges
-   *      - device ptr
-   *      - visited array
-   */
-
-  // calculate the number of nodes for this procs graph & offset
-  // within global graph
-  int graphSize = numNodes / np;
-  int leftover = numNodes % np;
-  int offset;
-
-  if (rank < leftover) { 
-    graphSize += 1; 
-    offset = rank * graphSize;
-  }
-  else {
-    offset = rank * graphSize + leftover;
-  }
   
-  // allocate adjacency matrix on device & set to 0'se
-  // note: has to be int to use atomic ops
-  int *adjMatrix;
-  size_t memSize = sizeof(int) * graphSize * numNodes;
-  CUDA_CALL(cudaMalloc((void**)&adjMatrix, memSize));
-  CUDA_CALL(cudaMemset(adjMatrix, 0, memSize));
+  // store number of nodes in whole graph
+  graph.setNumGlobalNodes(numNodes);
+
+  // break the graph into chunks for each proc
+  graph.chunkGraph();
+
+  // allocate adjacency matrix on device & set to 0's
+  // note: has to be int to use atomic ops in cuda
+  graph.allocateDeviceAdjMatrix();
 
   // allocate buffer for edge list
   long long *devEdgeList;
-  memSize = sizeof(long long) * numEdges * 2;
+  size_t memSize = sizeof(long long) * edges.size() * 2;
   CUDA_CALL(cudaMalloc((void**)&devEdgeList, memSize));
-  CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edgeList, memSize, cudaMemcpyHostToDevice));
+  CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edges.edges(), memSize, cudaMemcpyHostToDevice));
 
-  // launch graph contruction
-  std::cout << endl << "rank = " << rank << std::endl;
-  std::cout << "offset = " << offset << std::endl;
-  std::cout << "graphSize = " << graphSize << std::endl;
-  std::cout << "numNodes = " << numNodes << std::endl;
-  std::cout << "numEdges = " << numEdges << std::endl;
+  // DEBUG: print graph chunk info
+//  std::cout << endl << "rank = " << graph.rank() << std::endl;
+//  std::cout << "nodeOffset = " << graph.nodeOffset() << std::endl;
+//  std::cout << "localNumNodes = " << graph.numLocalNodes() << std::endl;
+//  std::cout << "numNodes = " << graph.numGlobalNodes() << std::endl;
+//  std::cout << "numEdges = " << edges.size() << std::endl;
   
-  // calculate num blocks & num threads per block based on numEdges
+  // calculate num blocks & num threads per block based on edges.size()
+  int threadsPerBlock = 256;
+  int numBlocks = ceil(float(edges.size()) / threadsPerBlock);
 
+  // launch kernel
+  buildGraph(threadsPerBlock, 
+  	     numBlocks, 
+             graph.deviceAdjMatrix(), 
+             graph.numGlobalNodes(), 
+             devEdgeList,
+             edges.size(),
+             graph.nodeOffset(),
+             graph.numLocalNodes(),
+             graph.rank());
+  
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));
 
-  // return graphSize & offset for future use
-  return pair<int, int>(graphSize, offset);
+  // DEBUG: copy graph back
+//  memSize = sizeof(bool) * graph.numLocalNodes() * graph.numGlobalNodes();
+//  bool *hostAdjMatrix = new bool[memSize];
+//  CUDA_CALL(cudaMemcpy(hostAdjMatrix, graph.deviceAdjMatrix(), memSize, cudaMemcpyDeviceToHost));
+//
+//  // inspect the graph
+//  for (int i = 0; i < edges.size(); ++i) {
+//    std::cout << edges.edges()[i] << "\t";
+//  }
+//  std::cout << std::endl;
+//  for (int i = 0; i < edges.size(); ++i) {
+//    std::cout << edges.edges()[i + edges.size()] << "\t";
+//  }
+//  
+//  std::cout << std::endl;
+//  std::cout << "printing graph" << std::endl;
+//  int num = memSize / sizeof(bool);
+//  std::cout << "num elements = " << num << std::endl;
+//  for (int i = 0; i < num; ++i) {
+//    std::cout << hostAdjMatrix[i] << " ";
+//    
+//    if (!((i+1) % numNodes)) { std::cout << std::endl; }
+//  }
 }

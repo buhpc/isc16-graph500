@@ -6,15 +6,44 @@
 
 #include "buildAdjMatrix.h"
 
-__global__ void buildAdjMatrix(int *adjMatrix,
+#include <stdio.h>
+
+/**
+ * wrapper for cuda kernel
+ */
+void buildGraph(int threadsPerBlock,
+                int numBlocks,
+                bool *adjMatrix,
+                int numNodes,
+                long long *edgeList,
+                int numEdges,
+                int offset,
+                int graphSize,
+                int rank) {
+  // launch kernel
+  buildAdjMatrix<<<numBlocks, threadsPerBlock>>>(adjMatrix,
+                                                 numNodes,
+                                                 edgeList,
+                                                 numEdges,
+                                                 offset,
+                                                 graphSize, 
+                                                 rank);
+}
+
+/**
+ * constructs and adjacency matrix in device memory from the list
+ * of edges
+ */
+__global__ void buildAdjMatrix(bool *adjMatrix,
                                int numNodes,
                                long long *edgeList,
                                int numEdges,
                                int offset,
-                               int graphSize) {
+                               int graphSize,
+                               int rank) {
 
   // each thread gets 1 edges in the edge list to build
-  int index = blockIdx.x*blockDim.x + threadIdx.x;
+  int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (index < numEdges) {
     // get the two vertices to connect
@@ -23,15 +52,15 @@ __global__ void buildAdjMatrix(int *adjMatrix,
     
     // remove self edges
     if (vertA == vertB) { return; }
-    
+
     // set edge in both direction
-    if (vertA >= offset && vertA < offset + graphSize) {
+    if (vertA >= offset && vertA < (offset + graphSize)) {
       // vertA is row vertB is column
-      atomicOr(&adjMatrix[vertA*numNodes+vertB], 1);
+      adjMatrix[(vertA - offset) * numNodes + vertB] = true;
     }
     if (vertB >= offset && vertB < offset + graphSize) {
       // vert b is row vertA is column
-      atomicOr(&adjMatrix[vertB*numNodes+vertA], 1);
+      adjMatrix[(vertB - offset) * numNodes + vertA] = true;
     }
   }
 

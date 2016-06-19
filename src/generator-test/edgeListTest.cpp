@@ -29,11 +29,10 @@ int main(int argc, char **argv) {
 	edges.create(numNodes, scale);
 
 	// prints Kronecker generated graph start and end vertices
-    edge *edgeList = edges.edges();
     cout << "List of Kronecker edges:" << endl;
     cout << "Start End" << endl;
     for (int i = 0; i < numEdges; i++) {
-    	cout << edgeList[i].start << " " << edgeList[i].end << endl;
+    	cout << edges.edges()[i] << " " << edges.edges()[i + edges.size()] << endl;
     }
 
 	return 0;

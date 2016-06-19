@@ -22,16 +22,16 @@ using namespace std;
 class Error
 {
 public:
-	// constructor
-	// sets error string
+  // constructor
+  // sets error string
  Error(const string &string) : error(string) {}
 
-	// returns error string
-	string GetError() { return this->error; }
+  // returns error string
+  string GetError() { return this->error; }
 
 private:
-	// error string
-	string error;
+  // error string
+  string error;
 };
 
 // generic exception wrapper
@@ -41,20 +41,19 @@ private:
     throw err;}
 
 // printing helper
-#define LOG_INFO(msg) {std::cout << __FILE__ << "(" << to_string(__LINE__) \
-                                 << "): " << msg << endl;}
+#define LOG_INFO(msg) {cout << __FILE__ << "(" << to_string(__LINE__) \
+                            << "): " << msg << endl;}
 
 // wrapper for cuda calls
-// #define CUDA_CALL(func) {GpuAssert(func);}
+#define CUDA_CALL(func) {GpuAssert(func, __FILE__, __LINE__);}
 
 // check for cudaSuccess
-/*
-inline void GpuAssert(cudaError_t code) {
+inline void GpuAssert(cudaError_t code, const string file, int line) {
   if (code != cudaSuccess) {
-    LOG_ERROR(cudaGetErrorString(code));
+    std::cout << file << "(" << to_string(line) \
+              << "): " << cudaGetErrorString(code) << endl;;
   }
 }
-*/
 
 // check for cuda aware mpi. throws error if no support
 inline void CheckForCudaAwareMPI(bool abort) {

@@ -11,22 +11,9 @@
 #include <cstdlib>
 #include <ctime>
 
-// #include "util.h"
+#include "util.h"
 
 using namespace std;
-
-/**
- * struct to hold start vertex connecting end vertex
- */
-struct edge {
-  long long from;
-  long long to;
-};
-
-/**
- * generates a struct edge using a start vertex and end vertex
- */
-edge generatedEdge(long long from, long long to);
 
 /**
  * class to store list of edges
@@ -40,13 +27,13 @@ class EdgeList {
   /**
    * allocate memory for list of size numEdges
    */
-  EdgeList(int numEdges) : size_(numEdges) { edges_ = new edge[numEdges*2](); }
+  EdgeList(int numEdges) : size_(numEdges) { edges_ = new long long[numEdges*2](); }
 
   /**
    * generate random edge list in allocated buffer
    */
   void create(int numNodes, int scale, int seed = 0);
-  edge generateRandomEdge(int scale, double A, double B, double C);
+  void generateKroneckerEdge(int scale, double A, double B, double C, int i);
 
   /**
    * clear edge list
@@ -58,7 +45,7 @@ class EdgeList {
    */
   int size() const { return this->size_; }
 
-  edge* edges() const { return this->edges_; }
+  long long* edges() const { return this->edges_; }
 
   /**
    * copy constructor and copy assigment operators
@@ -73,7 +60,7 @@ class EdgeList {
   
  private:
   
-  edge* edges_;
+  long long *edges_;
   
   int size_;
 };

@@ -8,6 +8,19 @@
 #define BUILD_ADJ_MATRIX_H
 
 /**
+ * wrapper for cuda kernel
+ */
+void buildGraph(int threadsPerBlock, 
+                int numBlocks, 
+                bool *adjMatrix,
+                int numNodes,
+                long long *edgeList,
+                int numEdges,
+                int offset, 
+                int graphSize,
+                int rank);
+
+/**
  * constructs an adjacency matrix in device memory from the list
  * of edges
  *
@@ -19,11 +32,12 @@
  *   - offset: the offset of the first first for this rank
  *   - graphSize: the number of vertices this graph has
  */
-__global__ void buildAdjMatrix(int *adjMatrix,
+__global__ void buildAdjMatrix(bool *adjMatrix,
                                int numNodes,
                                long long *edgeList,
                                int numEdges,
                                int offset, 
-                               int graphSize);
+                               int graphSize,
+                               int rank);
 
 #endif // BUID_ADJ_MATRIX_H
