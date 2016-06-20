@@ -1,7 +1,11 @@
-#include "validation.h"
-#include <vector>
-#include <deque>
 #include <algorithm>
+#include <deque>
+#include <string>
+#include <sstream>
+#include <vector>
+
+#include "util.h"
+#include "validation.h"
 
 /**
  * Simple implementation of Graph to validate parent_arrays against.
@@ -261,10 +265,47 @@ RetType validate_edges(VertexId* parent_array, Graph graph)
 RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edges)
 {
     Graph graph(edges);
-	return validate_cycles(parent_array, root_id)
+
+	RetType code =  validate_cycles(parent_array, root_id)
 	     | validate_levels(parent_array, root_id, graph)
 	     | validate_graph(parent_array, root_id, edges)
 	     | validate_span(parent_array, root_id, graph)
 	     | validate_edges(parent_array, graph)
-             ;
+         ;
+	if (code == VALIDATION_SUCCESS)
+		return 0;
+	else
+	{
+		std::ostringstream oss;
+		oss << "Validation failed(";
+
+		bool prev = false;
+		if (code & ERR_HAS_CYCLE)
+		{
+			oss << (prev?"|":"") << "ERR_HAS_CYCLE";
+			prev = true;
+		}
+		if (code & ERR_INVALID_LEVEL)
+		{
+			oss << (prev?"|":"") << "ERR_INVALID_LEVEL";
+			prev = true;
+		}
+		if (code & ERR_INVALID_GRAPH)
+		{
+			oss << (prev?"|":"") << "ERR_INVALID_GRAPH";
+			prev = true;
+		}
+		if (code & ERR_DOESNT_SPAN)
+		{
+			oss << (prev?"|":"") << "ERR_DOESNT_SPAN";
+			prev = true;
+		}
+		if (code & ERR_UNREAL_EDGE)
+		{
+			oss << (prev?"|":"") << "ERR_UNREAL_EDGE";
+			prev = true;
+		}
+		oss << ").";
+		throw Error(oss.str());
+	}
 }

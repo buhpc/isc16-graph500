@@ -10,6 +10,7 @@
 #include "graph.h"
 #include "generateKey.h"
 #include "breadthFirstSearch.h"
+#include "validation.h"
 
 #include <iostream>
 #include <mpi.h>
@@ -90,7 +91,19 @@ int main(int argc, char **argv) {
       breadthFirstSearch(key, graph, hostParent); 
     }
     if (rank == 0) { cout << "Done." << endl; }
+    if (rank == 0) { cout << "Veryfying results..." << endl; }
 
+    try
+    {
+      validate(hostParent, key, edges);
+      if (rank == 0) { cout << "Done." << endl; }
+    }
+    catch(Error err)
+    {
+      if (rank == 0) { cout << "Validation failed, more below." << endl; }
+      throw;
+    }
+    
     // cleanup
     delete[] hostParent;
   }
