@@ -5,8 +5,6 @@
 
 #include "breadthFirstSearch.h"
 
-#include <stdio.h>
-
 /**
  * performs bfs on the input graph from the input key
  */
@@ -36,9 +34,34 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
             visitedSize, 
             cudaMemcpyHostToDevice));
   
+  // indicates if this vertex has already been visited and processed
+  bool *devDone;
+  CUDA_CALL(cudaMalloc((void**)&devDone, sizeof(bool)*graph.numLocalNodes()));
+  CUDA_CALL(cudaMemset(devDone, 0, sizeof(bool)*graph.numLocalNodes()));
+
+  // calculate numThreads & numBlocks: 1 thread for each vertex
+  int threadsPerBlock = 1024;
+  int numBlocks = ceil(float(graph.numLocalNodes()) / threadsPerBlock);
+
+  // start timer
+  PROFILER_START_EVENT("BFS(" + to_string(graph.rank()) + ")");
   // step through bfs until complete
   do {
-    //bfsStep();
+    // unset work flag
+    CUDA_CALL(cudaMemset(devVisited + graph.numGlobalNodes(), 0, sizeof(bool)));
+
+    // executed step
+    bfsStep(threadsPerBlock, 
+            numBlocks,
+            graph.deviceAdjMatrix(),
+            graph.numGlobalNodes(),
+            graph.nodeOffset(),
+            graph.numLocalNodes(),
+            devVisited,
+            devDone,
+            devParent,
+            graph.rank(),
+            key);
 
     // copy visited back from device
     CUDA_CALL(cudaMemcpy(hostVisited, 
@@ -60,7 +83,15 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                        devParent, 
                        parentSize,
                        cudaMemcpyDeviceToHost));
-
+  
+//  if (graph.rank() == 1) {
+//    hostParent[graph.numGlobalNodes() - 1] = graph.numGlobalNodes() - 2;
+//  }
+//  // print all parent info
+//  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
+//    long long parent = hostParent[i];
+//    printf("(rank, parent[%d]) = (%d, %d)\n", i, graph.rank(), parent);
+//  }
   // reduce max to get parent info on master
   if (graph.rank() == 0) {
     MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, 
@@ -78,4 +109,12 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                            MPI::MAX,
                            0);
   }
-}
+  
+  PROFILER_STOP_EVENT("BFS(" + to_string(graph.rank()) + ")");
+//  printf("key = %d", key);
+//  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
+//    long long parent = hostParent[i];
+//    if (graph.rank() == 0 && parent != -1)
+//      printf("after:(rank, parent[%d]) = (%d, %d)\n", i, graph.rank(), parent);
+//  }
+} 

@@ -9,8 +9,12 @@
 
 #include "graph.h"
 #include "util.h"
+#include "bfsStep.h"
+#include "profiler.h"
 
 #include <cstdlib>
+#include <cmath>
+using std::ceil;
 
 /**
  * performs breadth first search startin at the input key
