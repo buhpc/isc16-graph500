@@ -62,15 +62,18 @@ int main(int argc, char **argv) {
 
     /** TODO
      * 1. sample keys [x]
-     * 2. BFS
+     * 2. BFS [x]
      * 3. integrate knronecker generator
      * 4. integrate validation
      * 5. add timing
+     * 6. remove rank from construction kernel & other debugging info
+     * 7. tune numThreads & block for our architecture
+     * 8. change using namespace to indiv using statemenst
      */
     
     // copy graph back for sampling
     long long key = 0;
-    int numIters = min(1, graph.numGlobalNodes());      
+    int numIters = min(64, graph.numGlobalNodes());      
     long long *hostParent = new long long[graph.numGlobalNodes()];
     for (int iter = 0; iter < numIters; ++iter) {
       if (rank == 0) {
@@ -80,7 +83,6 @@ int main(int argc, char **argv) {
       // broadcast key to all ranks
       MPI::COMM_WORLD.Bcast(&key, 1, MPI::LONG_LONG, 0);
       
-      std::cout << "Begin iteration" << std::endl;
       // begin bread first search
       breadthFirstSearch(key, graph, hostParent); 
     }
