@@ -1,0 +1,63 @@
+/**
+ * filename: profiler.h
+ * contents: this file contains the macros used to time sections of the code
+ */
+
+#ifndef PROFILER_H
+#define PROFILER_H
+
+#include "util.h"
+
+#include <map>
+#include <ctime>
+#include <string>
+
+using std::string;
+using std::cout;
+using std::endl;
+using std::to_string;
+using std::map;
+
+/**
+ * class used to time functions
+ */
+class Profiler {
+
+  public:
+
+    static Profiler& getInstance() {
+      static Profiler prof;
+
+      return prof;
+    }
+
+    void startEvent(const string event) {
+      // crete time stamp for this event
+      times_[event] = clock();
+    }
+
+    void stopEvent(const string event) {
+      // calculate time usage and print
+      clock_t end = clock();
+      if(times_.find(event) == times_.end()) {
+        LOG_ERROR("Event \"" + event + "\" does not exist");
+      }
+
+      double elapsedTime = double(end - times_[event]) / CLOCKS_PER_SEC;
+      cout << "\"" << event << "\" took " << elapsedTime << " seconds" << endl;
+    }
+
+  private:
+    // should never be instantiated
+    Profiler() {}
+
+    map<string, clock_t> times_;
+
+};
+
+// profiler macros
+#define PROFILER_START_EVENT(string) { Profiler::getInstance().startEvent(string); }
+
+#define PROFILER_STOP_EVENT(string) { Profiler::getInstance().stopEvent(string); }
+
+#endif // PROFILER_H

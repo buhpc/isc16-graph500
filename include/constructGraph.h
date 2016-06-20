@@ -14,6 +14,7 @@
 #include "edgeList.h"
 #include "buildAdjMatrix.h"
 #include "graph.h"
+#include "profiler.h"
 
 using namespace std;
 

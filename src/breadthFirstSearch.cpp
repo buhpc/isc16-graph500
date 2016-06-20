@@ -5,8 +5,6 @@
 
 #include "breadthFirstSearch.h"
 
-#include <stdio.h>
-
 /**
  * performs bfs on the input graph from the input key
  */
@@ -44,7 +42,9 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
   // calculate numThreads & numBlocks: 1 thread for each vertex
   int threadsPerBlock = 1024;
   int numBlocks = ceil(float(graph.numLocalNodes()) / threadsPerBlock);
-  
+
+  // start timer
+  PROFILER_START_EVENT("BFS(" + to_string(graph.rank()) + ")");
   // step through bfs until complete
   do {
     // unset work flag
@@ -110,6 +110,7 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                            0);
   }
   
+  PROFILER_STOP_EVENT("BFS(" + to_string(graph.rank()) + ")");
 //  printf("key = %d", key);
 //  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
 //    long long parent = hostParent[i];

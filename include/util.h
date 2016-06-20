@@ -13,6 +13,7 @@
 #include <cuda_runtime_api.h>
 #include <mpi.h>
 #include <cstdint>
+#include <iostream>
 
 using namespace std;
 

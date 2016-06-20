@@ -47,6 +47,9 @@ void constructGraph(EdgeList &edges, Graph &graph) {
   // calculate num blocks & num threads per block based on edges.size()
   int threadsPerBlock = 256;
   int numBlocks = ceil(float(edges.size()) / threadsPerBlock);
+  
+  // start timer
+  PROFILER_START_EVENT("Construct Graph(" + to_string(graph.rank()) + ")");
 
   // launch kernel
   buildGraph(threadsPerBlock, 
@@ -58,7 +61,10 @@ void constructGraph(EdgeList &edges, Graph &graph) {
              graph.nodeOffset(),
              graph.numLocalNodes(),
              graph.rank());
-  
+
+  // stop timer
+  PROFILER_STOP_EVENT("Construct Graph(" + to_string(graph.rank()) + ")");
+
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));
 

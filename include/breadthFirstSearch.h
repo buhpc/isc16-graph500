@@ -10,6 +10,7 @@
 #include "graph.h"
 #include "util.h"
 #include "bfsStep.h"
+#include "profiler.h"
 
 #include <cstdlib>
 #include <cmath>
