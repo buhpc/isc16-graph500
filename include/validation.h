@@ -1,3 +1,4 @@
+#include "edgeList.h"
 
 typedef long long int VertexId; //< As per Graph500 spec, needs to be over 48 bits. 64 here. Can hold [0 .. 2^63 - 1]. Negative reserved for vertices not in tree.
 typedef int RetType; //< Needs to be large enough to hold all error flags. Typedef mostly for quick changes
@@ -8,8 +9,6 @@ const RetType ERR_INVALID_LEVEL = 2;
 const RetType ERR_INVALID_GRAPH = 4;
 const RetType ERR_DOESNT_SPAN = 8;
 const RetType ERR_UNREAL_EDGE = 16;
-
-
 
 /**
  * Tests an array of parent information for the following validation
@@ -35,49 +34,3 @@ const RetType ERR_UNREAL_EDGE = 16;
  *          edge.
  */
 RetType validate(VertexId* parent_array, VertexId root_id);
-
-/**
- * Checks the following criteria:
- *
- * 1) The BFS tree is a tree and does not contain cycles
- *
- * @returns VALIDATION_SUCCESS(0) on success and ERR_HAS_CYCLE(1) on failure.
- */
-RetType validate_cycles(VertexId* parent_array, VertexId root_id);
-
-/**
- * Checks the following criteria:
- *
- * 2) Each tree edge connects vertices whose BFS levels differ by exactly one
- *
- * @returns VALIDATION_SUCCESS(0) on success and ERR_INVALID_LEVEL(2) on failure.
- */
-RetType validate_levels(VertexId* parent_array, VertexId root_id);
-
-/**
- * Checks the following criteria:
- *
- * 3) Every edge in the input list has vertices with levels that differ by
- *    at most one or that both are not in the BFS tree
- *
- * @returns VALIDATION_SUCCESS(0) on success and ERR_INVALID_GRAPH(4) on failure.
- */
-RetType validate_graph(VertexId* parent_array, VertexId root_id, );
-
-/**
- * Checks the following criteria:
- *
- * 4) The BFS tree spans an entire connected component's vertices
- *
- * @returns VALIDATION_SUCCESS(0) on success and ERR_DOESNT_SPAN(8) on failure.
- */
-RetType validate_span(VertexId* parent_array, VertexId root_id);
-
-/**
- * Checks the following criteria:
- *
- * 5) A node and its parent are joined by an edge of the original graph
- *
- * @returns VALIDATION_SUCCESS(0) on success and ERR_UNREAL_EDGE(16) on failure.
- */
-RetType validate_edges(VertexId* parent_array, VertexId root_id);
