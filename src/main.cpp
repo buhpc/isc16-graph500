@@ -9,6 +9,7 @@
 #include "constructGraph.h"
 #include "graph.h"
 #include "generateKey.h"
+#include "breadthFirstSearch.h"
 
 #include <iostream>
 #include <mpi.h>
@@ -69,7 +70,8 @@ int main(int argc, char **argv) {
     
     // copy graph back for sampling
     long long key = 0;
-    int numIters = min(64, graph.numGlobalNodes());      
+    int numIters = min(1, graph.numGlobalNodes());      
+    long long *hostParent = new long long[graph.numGlobalNodes()];
     for (int iter = 0; iter < numIters; ++iter) {
       if (rank == 0) {
         // sample random search key in [0,graph.numGlobalNodes
@@ -77,8 +79,14 @@ int main(int argc, char **argv) {
       }
       // broadcast key to all ranks
       MPI::COMM_WORLD.Bcast(&key, 1, MPI::LONG_LONG, 0);
-
+      
+      std::cout << "Begin iteration" << std::endl;
+      // begin bread first search
+      breadthFirstSearch(key, graph, hostParent); 
     }
+
+    // cleanup
+    delete[] hostParent;
   }
   catch(MPI::Exception e) {
     cout << "MPI ERROR(" << e.Get_error_code() \
