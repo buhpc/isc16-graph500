@@ -2,3 +2,11 @@
 
 # enter number of processes as 1st CL arg, scale as 2nd and edge factor as 3rd
 mpirun -np $1 main config.ini $2 $3
+
+# get results
+for file in `ls log`; do
+  outputs=$outputs" log/"$file
+done
+echo ""
+
+python scripts/parseResults.py $outputs

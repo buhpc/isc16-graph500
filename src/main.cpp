@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     int numEdges = edgeFactor * numNodes;
 
     // check for cuda aware MPI
-    if (rank == 0) { CheckForCudaAwareMPI(false); }
+    // if (rank == 0) { CheckForCudaAwareMPI(false); }
 
     // allocate buffer 
     EdgeList edges(numEdges);
@@ -58,20 +58,23 @@ int main(int argc, char **argv) {
     Graph graph(0, numEdges, rank, np);
 
     // kernel 1
+    if (rank == 0) { cout << "Constructing graph..." << endl; }
     constructGraph(edges, graph);
+    if (rank == 0) { cout << "Done." << endl; }
 
     /** TODO
      * 1. sample keys [x]
      * 2. BFS [x]
      * 3. integrate knronecker generator
      * 4. integrate validation
-     * 5. add timing
+     * 5. add timing [x]
      * 6. remove rank from construction kernel & other debugging info
      * 7. tune numThreads & block for our architecture
-     * 8. change using namespace to indiv using statemenst
+     * 9. scripts to analyze results from logs
      */
     
     // copy graph back for sampling
+    if (rank == 0) { cout << endl << "Running 64 BFSs..." << endl; }
     long long key = 0;
     int numIters = min(64, graph.numGlobalNodes());      
     long long *hostParent = new long long[graph.numGlobalNodes()];
@@ -86,6 +89,7 @@ int main(int argc, char **argv) {
       // begin bread first search
       breadthFirstSearch(key, graph, hostParent); 
     }
+    if (rank == 0) { cout << "Done." << endl; }
 
     // cleanup
     delete[] hostParent;

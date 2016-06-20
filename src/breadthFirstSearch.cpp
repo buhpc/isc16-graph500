@@ -44,7 +44,7 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
   int numBlocks = ceil(float(graph.numLocalNodes()) / threadsPerBlock);
 
   // start timer
-  PROFILER_START_EVENT("BFS(" + to_string(graph.rank()) + ")");
+  PROFILER_START_EVENT("BFS");
   // step through bfs until complete
   do {
     // unset work flag
@@ -110,7 +110,7 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                            0);
   }
   
-  PROFILER_STOP_EVENT("BFS(" + to_string(graph.rank()) + ")");
+  PROFILER_STOP_EVENT("BFS");
 //  printf("key = %d", key);
 //  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
 //    long long parent = hostParent[i];

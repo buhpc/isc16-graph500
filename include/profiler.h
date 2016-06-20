@@ -11,12 +11,9 @@
 #include <map>
 #include <ctime>
 #include <string>
+#include <fstream>
 
-using std::string;
-using std::cout;
-using std::endl;
-using std::to_string;
-using std::map;
+using namespace std;
 
 /**
  * class used to time functions
@@ -44,15 +41,22 @@ class Profiler {
       }
 
       double elapsedTime = double(end - times_[event]) / CLOCKS_PER_SEC;
-      cout << "\"" << event << "\" took " << elapsedTime << " seconds" << endl;
+      fp_ << fixed << "\"" << event << "\" took " << elapsedTime << " seconds" << endl;
     }
 
   private:
     // should never be instantiated
-    Profiler() {}
+    Profiler() { 
+      cout.precision(6); 
+      rank_ = MPI::COMM_WORLD.Get_rank();
+      fp_.open("log/slave_" + to_string(rank_) + ".log");
+    }
+
+    ~Profiler() { fp_.close(); }
 
     map<string, clock_t> times_;
-
+    int rank_;
+    ofstream fp_;
 };
 
 // profiler macros
