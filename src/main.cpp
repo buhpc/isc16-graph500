@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     EdgeList edges(numEdges);
 
     // randomly generate on host
-    if(rank == 0) { edges.create(numNodes); }
+    if(rank == 0) { edges.create(numNodes, scale); }
 
     // Broadcast data to all nodes
     MPI::COMM_WORLD.Bcast(edges.edges(), edges.size()*2, MPI::LONG_LONG, 0);

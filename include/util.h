@@ -23,16 +23,16 @@ using namespace std;
 class Error
 {
 public:
-	// constructor
-	// sets error string
+  // constructor
+  // sets error string
  Error(const string &string) : error(string) {}
 
-	// returns error string
-	string GetError() { return this->error; }
+  // returns error string
+  string GetError() { return this->error; }
 
 private:
-	// error string
-	string error;
+  // error string
+  string error;
 };
 
 // generic exception wrapper

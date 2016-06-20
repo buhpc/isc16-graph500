@@ -2,4 +2,6 @@ main
 *~
 *.o
 log/*
+*.exe
+*.stackdump
 
