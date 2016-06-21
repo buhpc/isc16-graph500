@@ -39,9 +39,16 @@ class Profiler {
       if(times_.find(event) == times_.end()) {
         LOG_ERROR("Event \"" + event + "\" does not exist");
       }
-
+    
       double elapsedTime = double(end - times_[event]) / CLOCKS_PER_SEC;
       fp_ << fixed << "\"" << event << "\" took " << elapsedTime << " seconds" << endl;
+      
+      // save time
+      times_[event] = elapsedTime;
+    }
+
+    double getTime(const string event) {
+      return times_[event];
     }
 
   private:
