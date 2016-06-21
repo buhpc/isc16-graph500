@@ -309,3 +309,16 @@ RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edges)
 		throw Error(oss.str());
 	}
 }
+
+long long int numEdges(VertexId* parent_array)
+{
+	long long int edgeCount = 0;
+	for (int i = 0; i < VERTICIES; i++)
+	{
+		if (parent_array[i] >= 0)
+		{
+				edgeCount++;
+		}
+	}
+	return edgeCount;
+}

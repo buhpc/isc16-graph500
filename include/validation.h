@@ -1,3 +1,6 @@
+#ifndef VALIDATION_H
+#define VALIDATION_H
+
 #include "edgeList.h"
 
 typedef long long int VertexId; //< As per Graph500 spec, needs to be over 48 bits. 64 here. Can hold [0 .. 2^63 - 1]. Negative reserved for vertices not in tree.
@@ -25,7 +28,9 @@ const RetType ERR_UNREAL_EDGE = 16;
  *                     is the index of it's parent, therefore a vertex tree.
  * @param root_id The index of the root vertex in the parent_array.
  *
- * @returns 0 on success, or a mix of error flags. ERR_HAS_CYCLE(1) if a cycle
+ * @returns VALIDATION_SUCCESS(0) on success, or throws an error.
+ *
+ * @throws  A string representation of a mix of error flags. ERR_HAS_CYCLE(1) if a cycle
  *          is detected, ERR_INVALID_LEVEL(2) If a tree edge connects two
  *          vertecies that don't differ by one level. ERR_INVALID_GRAPH(4) if 
  *          any nodes in the , ERR_DOESNT_SPAN(8) if the tree doesn't cover 
@@ -34,3 +39,6 @@ const RetType ERR_UNREAL_EDGE = 16;
  *          edge.
  */
 RetType validate(VertexId* parent_array, VertexId root_id);
+long long int numEdges(VertexId* parent_array);
+
+#endif //VALIDATION_H
