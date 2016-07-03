@@ -5,7 +5,7 @@
 
 typedef long long int VertexId; //< As per Graph500 spec, needs to be over 48 bits. 64 here. Can hold [0 .. 2^63 - 1]. Negative reserved for vertices not in tree.
 typedef int RetType; //< Needs to be large enough to hold all error flags. Typedef mostly for quick changes
-const VertexId VERTICIES = 100; // Opens us up to an edge condition where VertexId sized to hold [0 .. VERTICES - 1] but VERTICES pushes over 
+//const VertexId VERTICIES = 100; // Opens us up to an edge condition where VertexId sized to hold [0 .. VERTICES - 1] but VERTICES pushes over 
 const RetType VALIDATION_SUCCESS = 0;
 const RetType ERR_HAS_CYCLE = 1;
 const RetType ERR_INVALID_LEVEL = 2;
@@ -38,7 +38,7 @@ const RetType ERR_UNREAL_EDGE = 16;
  *          ERR_UNREAL_EDGE(16) if a tree edge doesn't correspond to a graph
  *          edge.
  */
-RetType validate(VertexId* parent_array, VertexId root_id);
-long long int numEdges(VertexId* parent_array);
+RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edgelist, long long int VERTICIES);
+long long int getNumEdges(VertexId* parent_array, long long int VERTICIES);
 
 #endif //VALIDATION_H

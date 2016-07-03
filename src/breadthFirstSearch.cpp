@@ -14,7 +14,15 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
 
   // allocate host and device buffer for visited flags
   int numHostVisited = graph.numGlobalNodes() + 1;
-  bool *hostVisited = new bool[numHostVisited]();
+  bool *hostVisited;
+  CUDA_CALL(cudaHostAlloc((void**)&hostVisited, 
+                          numHostVisited, 
+                          cudaHostAllocMapped));
+
+  bool *devVisited;
+  CUDA_CALL(cudaHostGetDevicePointer((void**)&devVisited,
+                                     (void*) hostVisited, 
+                                     0));
 
   // mark starting node index as visited
   hostVisited[key] = true;
@@ -22,17 +30,21 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
   // allocate parent info on device
   long long *devParent;
   size_t parentSize = sizeof(long long) * graph.numGlobalNodes();
-  CUDA_CALL(cudaMalloc((void **)&devParent, parentSize));
-  CUDA_CALL(cudaMemset(devParent, -1, parentSize));
+  CUDA_CALL(cudaHostGetDevicePointer((void**)&devParent, 
+                                     (void*)hostParent, 
+                                     0));
+
+  //CUDA_CALL(cudaMalloc((void **)&devParent, parentSize));
+  //CUDA_CALL(cudaMemset(devParent, -1, parentSize));
 
   // allocate visited info on device
-  bool *devVisited;
-  size_t visitedSize = sizeof(bool) * numHostVisited;
-  CUDA_CALL(cudaMalloc((void **)&devVisited, visitedSize));
-  CUDA_CALL(cudaMemcpy(devVisited,
-            hostVisited,
-            visitedSize, 
-            cudaMemcpyHostToDevice));
+  //bool *devVisited;
+  //size_t visitedSize = sizeof(bool) * numHostVisited;
+  //CUDA_CALL(cudaMalloc((void **)&devVisited, visitedSize));
+  //CUDA_CALL(cudaMemcpy(devVisited,
+  //          hostVisited,
+  //          visitedSize, 
+  //          cudaMemcpyHostToDevice));
   
   // indicates if this vertex has already been visited and processed
   bool *devDone;
@@ -48,7 +60,7 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
   // step through bfs until complete
   do {
     // unset work flag
-    CUDA_CALL(cudaMemset(devVisited + graph.numGlobalNodes(), 0, sizeof(bool)));
+    hostVisited[graph.numGlobalNodes()] = 0;
 
     // executed step
     bfsStep(threadsPerBlock, 
@@ -62,12 +74,7 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
             devParent,
             graph.rank(),
             key);
-
-    // copy visited back from device
-    CUDA_CALL(cudaMemcpy(hostVisited, 
-              devVisited, 
-              visitedSize, 
-              cudaMemcpyDeviceToHost));
+    CUDA_CALL(cudaDeviceSynchronize());
 
     // update global visited information
     MPI::COMM_WORLD.Allreduce(MPI::IN_PLACE, 
@@ -75,8 +82,8 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                               numHostVisited, 
                               MPI::BOOL,
                               MPI::LOR);
-  
-  } while(hostVisited[numHostVisited - 1]);
+
+} while(hostVisited[numHostVisited - 1]);
 
   // copy parent info back from device
   CUDA_CALL(cudaMemcpy(hostParent,
@@ -84,14 +91,6 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
                        parentSize,
                        cudaMemcpyDeviceToHost));
   
-//  if (graph.rank() == 1) {
-//    hostParent[graph.numGlobalNodes() - 1] = graph.numGlobalNodes() - 2;
-//  }
-//  // print all parent info
-//  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
-//    long long parent = hostParent[i];
-//    printf("(rank, parent[%d]) = (%d, %d)\n", i, graph.rank(), parent);
-//  }
   // reduce max to get parent info on master
   if (graph.rank() == 0) {
     MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, 
@@ -111,10 +110,4 @@ void breadthFirstSearch(long long key, const Graph &graph, long long *hostParent
   }
   
   PROFILER_STOP_EVENT("BFS");
-//  printf("key = %d", key);
-//  for (int i = 0; i < graph.numGlobalNodes(); ++i) {
-//    long long parent = hostParent[i];
-//    if (graph.rank() == 0 && parent != -1)
-//      printf("after:(rank, parent[%d]) = (%d, %d)\n", i, graph.rank(), parent);
-//  }
 } 

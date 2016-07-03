@@ -4,6 +4,8 @@
 #include <sstream>
 #include <vector>
 
+#include <assert.h>
+
 #include "util.h"
 #include "validation.h"
 
@@ -13,9 +15,10 @@
 class Graph
 {
 public:
-	Graph(EdgeList& edgelist)
+	Graph(EdgeList& edgelist, long long int VERTICIES)
     {
         // Allocating space
+        this->VERTICIES = VERTICIES;
         this->adjacencyMatrix.resize(VERTICIES);
         for (int i = 0; i < this->adjacencyMatrix.size(); i++)
         {
@@ -39,26 +42,25 @@ public:
 	std::vector<VertexId> connected_component(VertexId v1)
 	{
 		std::vector<VertexId> component;
-        std::vector<bool> visited_bits(VERTICIES);
+    std::vector<bool> visited_bits(VERTICIES);
 
-        component.push_back(v1);
-        visited_bits[v1] = true;
+    component.push_back(v1);
+    visited_bits[v1] = true;
 
-	VertexId old_size;
-        do
+	  VertexId old_size;
+    do
+    {
+      old_size = component.size();
+      std::vector<VertexId> my_neighbors = this->neighbors(component.back());
+      for (int i = 0; i < my_neighbors.size(); i++)
+      {
+        if (!visited_bits[my_neighbors[i]])
         {
-            old_size = component.size();
-            std::vector<VertexId> my_neighbors = this->neighbors(component.back());
-            for (int i = 0; i < my_neighbors.size(); i++)
-            {
-                if (!visited_bits[my_neighbors[i]])
-                {
-                    component.push_back(my_neighbors[i]);
-                    visited_bits[my_neighbors[i]] = true;
-                }
-            }
-        } while (old_size != component.size());
-
+          component.push_back(my_neighbors[i]);
+          visited_bits[my_neighbors[i]] = true;
+        }
+      }
+    } while (old_size != component.size());
 		return component;
 	}
 
@@ -93,15 +95,16 @@ private:
     std::vector<VertexId> neighbors(VertexId v1)
     {
         std::vector<VertexId> myNeighbors;
-        for (int i = 0; i < VERTICIES; i++)
+        for (long long int i = 0; i < VERTICIES; i++)
         {
-            if (this->adjacencyMatrix[v1][i])
+            if (this->adjacencyMatrix[v1][i] && i != v1)
                 myNeighbors.push_back(i);
         }
         return myNeighbors;
     }
 
     std::vector< std::vector<bool> > adjacencyMatrix;
+    long long int VERTICIES;
 };
 
 /**
@@ -111,24 +114,25 @@ private:
  *
  * @returns VALIDATION_SUCCESS(0) on success and ERR_HAS_CYCLE(1) on failure.
  */
-RetType validate_cycles(VertexId* parent_array, VertexId root_id)
+RetType validate_cycles(VertexId* parent_array, VertexId root_id, long long int VERTICIES)
 {
 	VertexId vertex_id;
 	std::vector<bool> visited(VERTICIES);
 
 	// Cycle check
-	for (int i = 0; i < VERTICIES; i++)
+	for (long long int i = 0; i < VERTICIES; i++)
 	{
 		// If a node was already visited, it was part of another node's path
 		// which was not cyclic
-		if (visited[i]) continue;
+		if (visited[i] || parent_array[i] < 0) continue;
 
-		std::vector<bool> vertex_bits(VERTICIES); //< Tracks which verticies
+		std::vector<bool> vertex_bits(VERTICIES, false); //< Tracks which verticies
 		                                          // are visited when
 		                                          // traversing path i
 		vertex_id = i; //< Tracks which vertex we are on in traversal
 		do
 		{
+
 			//visiting a vertex twice in one path traversal implies a cycle
 			if (vertex_bits[vertex_id])
 			{
@@ -136,23 +140,32 @@ RetType validate_cycles(VertexId* parent_array, VertexId root_id)
 			}
 
 			// Track traversal and iterate
-			vertex_bits[vertex_id] = visited[vertex_id] = true;
+			vertex_bits[vertex_id] = true;
+      visited[vertex_id] = true;
+
+      if (parent_array[vertex_id] < 0)
+      {
+        std::cout << vertex_id << "->" << parent_array[vertex_id] << std::endl;
+        assert(false);
+      }
 			vertex_id = parent_array[vertex_id];
 		}
 		//Do until we hit root
 		while (vertex_id != root_id);
 	}
+
+  return VALIDATION_SUCCESS;
 }
 
-static std::vector<int> calc_expected_levels(VertexId* parent_array, VertexId root_id)
+static std::vector<int> calc_expected_levels(VertexId* parent_array, VertexId root_id, long long int VERTICIES)
 {
     //Level check
 	std::vector<int> expected_levels(VERTICIES, -1); //< Stores the levels implied by parent_array
 	expected_levels[root_id] = 0; //< root_id level always is zero
-	std::deque<unsigned int> to_visit; 
+	std::deque<long long int> to_visit; 
 
 	//Inital population of to_visit
-	for (int i = 0; i < VERTICIES; i++)
+	for (long long int i = 0; i < VERTICIES; i++)
 	{
 		//Level 1 can be assigned to here
 		if (parent_array[i] == root_id)
@@ -166,10 +179,16 @@ static std::vector<int> calc_expected_levels(VertexId* parent_array, VertexId ro
 	while (!to_visit.empty())
 	{
 		int id = to_visit.front();
+    to_visit.pop_front();
+
 		if (expected_levels[parent_array[id]] >= 0)
 		{
 			expected_levels[id] = expected_levels[parent_array[id]] + 1;
 		}
+    else
+    {
+      to_visit.push_back(id);
+    }
 	}
 
     return expected_levels;
@@ -182,14 +201,14 @@ static std::vector<int> calc_expected_levels(VertexId* parent_array, VertexId ro
  *
  * @returns VALIDATION_SUCCESS(0) on success and ERR_INVALID_LEVEL(2) on failure.
  */
-RetType validate_levels(VertexId* parent_array, VertexId root_id, Graph graph)
+RetType validate_levels(VertexId* parent_array, VertexId root_id, Graph graph, long long int VERTICIES)
 {
-	std::vector<int> expected_levels = calc_expected_levels(parent_array, root_id);
+	std::vector<int> expected_levels = calc_expected_levels(parent_array, root_id, VERTICIES);
 	std::vector<int> graph_levels = graph.graph_levels(root_id);
 
-	for(int i = 0; i < VERTICIES; i++)
+	for(long long int i = 0; i < VERTICIES; i++)
 	{
-		if (expected_levels[i] != graph_levels[i])
+		if (parent_array[i] > 0 && expected_levels[i] != graph_levels[i])
 		{
 			return ERR_INVALID_LEVEL;
 		}
@@ -207,11 +226,13 @@ RetType validate_levels(VertexId* parent_array, VertexId root_id, Graph graph)
  *
  * @returns VALIDATION_SUCCESS(0) on success and ERR_INVALID_GRAPH(4) on failure.
  */
-RetType validate_graph(VertexId* parent_array, VertexId root_id, EdgeList& edgelist)
+RetType validate_graph(VertexId* parent_array, VertexId root_id, EdgeList& edgelist, long long int VERTICIES)
 {
-    std::vector<int> levels = calc_expected_levels(parent_array, root_id);
-    for (int i = 0; i<edgelist.size(); i++)
+    std::vector<int> levels = calc_expected_levels(parent_array, root_id, VERTICIES);
+    for (long long int i = 0; i<edgelist.size(); i++)
     {
+        if (parent_array[edgelist.edges()[i]] < 0) continue;
+
         int diff = levels[edgelist.edges()[i]] - levels[edgelist.edges()[i + edgelist.size()]];
         if (diff > 1 or diff < -1)
         {
@@ -228,16 +249,20 @@ RetType validate_graph(VertexId* parent_array, VertexId root_id, EdgeList& edgel
  *
  * @returns VALIDATION_SUCCESS(0) on success and ERR_DOESNT_SPAN(8) on failure.
  */
-RetType validate_span(VertexId* parent_array, VertexId root_id, Graph graph)
+RetType validate_span(VertexId* parent_array, VertexId root_id, Graph graph, long long int VERTICIES)
 {
 	//Gets all vertex_ids in the connected component
 	std::vector<VertexId> vertices = graph.connected_component(root_id);
 
 	//Iterate through connected component vertecies
 	for (auto it = vertices.begin(); it != vertices.end(); it++)
+  {
 		//root_id is taken to always be visited, other -1's imply not in connected component
 		if (!(*it == root_id or parent_array[*it] >= 0))
-			return ERR_DOESNT_SPAN;
+	  {
+      return ERR_DOESNT_SPAN;
+    }
+  }
 
 	return VALIDATION_SUCCESS;
 
@@ -250,9 +275,9 @@ RetType validate_span(VertexId* parent_array, VertexId root_id, Graph graph)
  *
  * @returns VALIDATION_SUCCESS(0) on success and ERR_UNREAL_EDGE(16) on failure.
  */
-RetType validate_edges(VertexId* parent_array, Graph graph)
+RetType validate_edges(VertexId* parent_array, Graph graph, long long int VERTICIES)
 {
-	for (int i = 0; i < VERTICIES; i++)
+	for (long long int i = 0; i < VERTICIES; i++)
 	{
 		// -1 denotes no edge exists
 		if (parent_array[i] >= 0 && !graph.edge_exists(i, parent_array[i]))
@@ -262,15 +287,16 @@ RetType validate_edges(VertexId* parent_array, Graph graph)
 }
 
 // Ors together all validation flags to return 
-RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edges)
+RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edges, long long int VERTICIES)
 {
-    Graph graph(edges);
+  Graph graph(edges, VERTICIES);
 
-	RetType code =  validate_cycles(parent_array, root_id)
-	     | validate_levels(parent_array, root_id, graph)
-	     | validate_graph(parent_array, root_id, edges)
-	     | validate_span(parent_array, root_id, graph)
-	     | validate_edges(parent_array, graph)
+	RetType code = VALIDATION_SUCCESS;
+  code |= validate_cycles(parent_array, root_id, VERTICIES);
+	code |= validate_levels(parent_array, root_id, graph, VERTICIES);
+	code |= validate_graph(parent_array, root_id, edges, VERTICIES);
+	code |= validate_span(parent_array, root_id, graph, VERTICIES);
+	code |= validate_edges(parent_array, graph, VERTICIES);
          ;
 	if (code == VALIDATION_SUCCESS)
 		return 0;
@@ -310,10 +336,10 @@ RetType validate(VertexId* parent_array, VertexId root_id, EdgeList& edges)
 	}
 }
 
-long long int numEdges(VertexId* parent_array)
+long long int getNumEdges(VertexId* parent_array, long long int VERTICIES)
 {
 	long long int edgeCount = 0;
-	for (int i = 0; i < VERTICIES; i++)
+	for (long long int i = 0; i < VERTICIES; i++)
 	{
 		if (parent_array[i] >= 0)
 		{

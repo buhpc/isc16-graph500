@@ -44,11 +44,11 @@ class Profiler {
       fp_ << fixed << "\"" << event << "\" took " << elapsedTime << " seconds" << endl;
       
       // save time
-      times_[event] = elapsedTime;
+      bfsTime_ = elapsedTime;
     }
 
-    double getTime(const string event) {
-      return times_[event];
+    double getTime() {
+      return bfsTime_;
     }
 
   private:
@@ -64,6 +64,9 @@ class Profiler {
     map<string, clock_t> times_;
     int rank_;
     ofstream fp_;
+
+    // todo: fix this hack
+    double bfsTime_;
 };
 
 // profiler macros

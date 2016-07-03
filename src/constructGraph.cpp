@@ -37,13 +37,6 @@ void constructGraph(EdgeList &edges, Graph &graph) {
   CUDA_CALL(cudaMalloc((void**)&devEdgeList, memSize));
   CUDA_CALL(cudaMemcpy(devEdgeList, (void *)edges.edges(), memSize, cudaMemcpyHostToDevice));
 
-  // DEBUG: print graph chunk info
-//  std::cout << endl << "rank = " << graph.rank() << std::endl;
-//  std::cout << "nodeOffset = " << graph.nodeOffset() << std::endl;
-//  std::cout << "localNumNodes = " << graph.numLocalNodes() << std::endl;
-//  std::cout << "numNodes = " << graph.numGlobalNodes() << std::endl;
-//  std::cout << "numEdges = " << edges.size() << std::endl;
-  
   // calculate num blocks & num threads per block based on edges.size()
   int threadsPerBlock = 1024;
   int numBlocks = ceil(float(edges.size()) / threadsPerBlock);
@@ -67,28 +60,4 @@ void constructGraph(EdgeList &edges, Graph &graph) {
 
   // cleanup edge list
   CUDA_CALL(cudaFree(devEdgeList));
-
-  // DEBUG: copy graph back
-//  memSize = sizeof(bool) * graph.numLocalNodes() * graph.numGlobalNodes();
-//  bool *hostAdjMatrix = new bool[memSize];
-//  CUDA_CALL(cudaMemcpy(hostAdjMatrix, graph.deviceAdjMatrix(), memSize, cudaMemcpyDeviceToHost));
-//
-//  // inspect the graph
-//  for (int i = 0; i < edges.size(); ++i) {
-//    std::cout << edges.edges()[i] << "\t";
-//  }
-//  std::cout << std::endl;
-//  for (int i = 0; i < edges.size(); ++i) {
-//    std::cout << edges.edges()[i + edges.size()] << "\t";
-//  }
-//  
-//  std::cout << std::endl;
-//  std::cout << "printing graph" << std::endl;
-//  int num = memSize / sizeof(bool);
-//  std::cout << "num elements = " << num << std::endl;
-//  for (int i = 0; i < num; ++i) {
-//    std::cout << hostAdjMatrix[i] << " ";
-//    
-//    if (!((i+1) % numNodes)) { std::cout << std::endl; }
-//  }
 }
