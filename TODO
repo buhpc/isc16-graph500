@@ -1,0 +1,14 @@
+updated: 7.3.16 by tgale
+
+Little things
+1. update profiler to keep track of times more cleanly
+2. clean up styling differences in validation
+3. restructure validation to have it's own directory
+4. change 2nd graph class name
+
+Bigger things
+1. Construct adjacency list to reduce memory usage and increase potential scale
+2. Switch to algorithm in (http://impact.crhc.illinois.edu/shared/papers/effective2010.pdf) for bfs
+
+DOCS
+1. Document usage options

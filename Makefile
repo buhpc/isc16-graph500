@@ -1,7 +1,7 @@
 CC=mpicxx
 FLAGS=-std=c++11
 INCLUDE= -Iinclude -I/usr/local/cuda/include
-LDFLAGS=-L/usr/local/cuda/lib64
+LDFLAGS=-L/usr/local/cuda/lib
 LIB=-lcudart
 EXE=main
 NVCC=nvcc
